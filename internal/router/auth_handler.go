@@ -111,7 +111,12 @@ func (h *AuthHandler) JWTMiddleware() fiber.Handler {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing authorization header"})
 		}
 
-		tokenString := authHeader[7:] // "Bearer "
+		const bearerPrefix = "Bearer "
+		if len(authHeader) <= len(bearerPrefix) || authHeader[:len(bearerPrefix)] != bearerPrefix {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid authorization header format"})
+		}
+
+		tokenString := authHeader[len(bearerPrefix):]
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("unexpected signing method")

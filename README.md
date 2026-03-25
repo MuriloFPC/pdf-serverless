@@ -24,13 +24,14 @@ The system follows **Clean Architecture** principles and is written in **Go 1.26
 - **Domain Layer**: Contains the core entities and repository interfaces.
 - **Infrastructure Layer**: Implements storage (S3), database (DynamoDB), and queue (SQS) providers.
 
-Currently, the project includes memory-based implementations for all infrastructure components, allowing for easy local testing and demonstration.
+Currently, the project supports both memory-based implementations for local testing and AWS (S3, DynamoDB, SQS) for production.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Go 1.26 or later
+- AWS CLI & SAM CLI (for AWS deployment)
 
 ### Installation
 
@@ -40,15 +41,35 @@ Currently, the project includes memory-based implementations for all infrastruct
    go mod download
    ```
 
-### Running the API (Local Demo)
+### Running Locally
 
-The API includes an integrated background worker for local testing with memory-based storage and queue.
+To run the API locally using memory-based storage and queue (no AWS required):
 
 ```bash
-go run cmd/api/main.go
+make local
 ```
 
 The server will start on `http://localhost:3000`.
+
+### Deployment to AWS
+
+The project uses AWS SAM for infrastructure as code.
+
+#### Manual Deployment
+
+1. Configure your AWS credentials.
+2. Run the deploy command:
+   ```bash
+   make deploy
+   ```
+   Follow the prompts to configure your stack for the first time.
+
+#### GitHub Actions
+
+A workflow is provided in `.github/workflows/deploy.yml`. To use it, add the following secrets to your GitHub repository:
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
 
 ## API Endpoints
 

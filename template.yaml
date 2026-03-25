@@ -1,0 +1,197 @@
+﻿AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for pdf-serverless
+
+Parameters:
+  Env:
+    Type: String
+    Default: freetier
+    AllowedValues: [freetier, ondemand]
+    Description: Environment to deploy to (freetier with provisioned capacity or ondemand with PAY_PER_REQUEST)
+
+  JwtSecret:
+    Type: String
+    NoEcho: true
+    Description: JWT Secret for authentication (DO NOT use default in production)
+
+Mappings:
+  Config:
+    freetier:
+      BucketName: "pdf-serverless-opensource"
+      BillingMode: "PROVISIONED"
+    ondemand:
+      BucketName: "pdf-serverless-opensource"
+      BillingMode: "PAY_PER_REQUEST"
+
+Conditions:
+  IsFreeTier: !Equals [!Ref Env, freetier]
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: provided.al2023
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        USER_TABLE: !Ref UserTable
+        JOB_TABLE: !Ref JobTable
+        S3_BUCKET_NAME: !Ref PDFBucket
+        SQS_QUEUE_URL: !Ref PDFQueue
+        JWT_SECRET: !Ref JwtSecret
+
+Resources:
+  APIFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: pdf-serverless-api
+      Handler: bootstrap
+      CodeUri: bin/api/
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:Query
+              Resource:
+                - !GetAtt UserTable.Arn
+                - !GetAtt JobTable.Arn
+                - !Sub "${UserTable.Arn}/index/*"
+                - !Sub "${JobTable.Arn}/index/*"
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:ListBucket
+              Resource:
+                - !GetAtt PDFBucket.Arn
+                - !Sub "${PDFBucket.Arn}/*"
+            - Effect: Allow
+              Action:
+                - sqs:SendMessage
+              Resource: !GetAtt PDFQueue.Arn
+
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: pdf-serverless-worker
+      Handler: bootstrap
+      CodeUri: bin/worker/
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt PDFQueue.Arn
+            BatchSize: 10
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:Query
+              Resource:
+                - !GetAtt UserTable.Arn
+                - !GetAtt JobTable.Arn
+                - !Sub "${UserTable.Arn}/index/*"
+                - !Sub "${JobTable.Arn}/index/*"
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:ListBucket
+              Resource:
+                - !GetAtt PDFBucket.Arn
+                - !Sub "${PDFBucket.Arn}/*"
+            - Effect: Allow
+              Action:
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+              Resource: !GetAtt PDFQueue.Arn
+
+  UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: pdf-serverless-user
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput: !If [IsFreeTier, {ReadCapacityUnits: 5, WriteCapacityUnits: 5}, !Ref "AWS::NoValue"]
+      BillingMode: !FindInMap [Config, !Ref Env, BillingMode]
+      ProvisionedThroughput: !If [IsFreeTier, {ReadCapacityUnits: 5, WriteCapacityUnits: 5}, !Ref "AWS::NoValue"]
+
+  JobTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: pdf-serverless-job
+      AttributeDefinitions:
+        - AttributeName: job_id
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: job_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: UserIDIndex
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput: !If [IsFreeTier, {ReadCapacityUnits: 7, WriteCapacityUnits: 7}, !Ref "AWS::NoValue"]
+      BillingMode: !FindInMap [Config, !Ref Env, BillingMode]
+      ProvisionedThroughput: !If [IsFreeTier, {ReadCapacityUnits: 8, WriteCapacityUnits: 8}, !Ref "AWS::NoValue"]
+
+  PDFBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !FindInMap [Config, !Ref Env, BucketName]
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldFiles
+            Status: Enabled
+            ExpirationInDays: 7
+
+  PDFQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: pdf-serverless-queue
+      VisibilityTimeout: 300
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"

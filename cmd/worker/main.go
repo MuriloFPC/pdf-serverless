@@ -1,23 +1,59 @@
 package main
 
 import (
+	"context"
 	"log"
+	"pdf_serverless/internal/core/service/pdf_service"
+	"pdf_serverless/internal/core/service/pdf_service/strategy"
+	"pdf_serverless/internal/infra/database"
+	"pdf_serverless/internal/infra/storage"
+
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func main() {
-	// In a real serverless environment, these would be separate processes
-	// or AWS Lambda functions. For this MVP/local demo, we share the same
-	// memory-based infrastructure if we were running them together, but
-	// usually, they'd use DynamoDB, S3, and SQS.
+	ctx := context.Background()
 
-	// Since we are using memory implementations, this worker needs to
-	// be part of the same runtime to "see" the same data, OR we use
-	// real AWS services.
+	// AWS Configuration
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err)
+	}
 
-	// To make this work as a standalone demo worker, it would need
-	// access to the same 'q' and 'repo'.
+	dynamoClient := dynamodb.NewFromConfig(cfg)
+	s3Client := s3.NewFromConfig(cfg)
 
-	log.Println("Worker starting...")
-	// This is a placeholder for the worker logic.
-	// In a real scenario, it would loop and call pdfService.ProcessJob(ctx, jobID)
+	// Initialize Infrastructure
+	jobRepo := database.NewJobDynamoRepository(dynamoClient)
+	store := storage.NewS3Storage(s3Client)
+
+	// Initialize PDF Service & Strategies
+	strategies := []strategy.ProcessingStrategy{
+		strategy.NewMergeStrategy(store),
+		strategy.NewSplitStrategy(store),
+		strategy.NewProtectStrategy(store),
+		strategy.NewUnprotectStrategy(store),
+	}
+	pdfService := pdf_service.NewPDFService(jobRepo, store, nil, strategies)
+
+	handler := func(ctx context.Context, sqsEvent events.SQSEvent) error {
+		for _, message := range sqsEvent.Records {
+			jobID := message.Body
+			log.Printf("Processing job: %s", jobID)
+
+			if err := pdfService.ProcessJob(ctx, jobID); err != nil {
+				log.Printf("Error processing job %s: %v", jobID, err)
+				// Returning error will make the message visible again in the queue (if visibility timeout allows)
+				return err
+			}
+			log.Printf("Job %s completed", jobID)
+		}
+		return nil
+	}
+
+	lambda.Start(handler)
 }
