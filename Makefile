@@ -3,15 +3,15 @@
 # Build para AWS Lambda (Linux ARM64)
 build:
 	@echo "Building binaries for AWS Lambda..."
-	@set GOOS=linux& set GOARCH=arm64& set CGO_ENABLED=0& go build -o bin/api/bootstrap ./cmd/api
-	@set GOOS=linux& set GOARCH=arm64& set CGO_ENABLED=0& go build -o bin/worker/bootstrap ./cmd/worker
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o bin/api/bootstrap ./cmd/api
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o bin/worker/bootstrap ./cmd/worker
 
 # Targets para o SAM Build (BuildMethod: makefile)
 build-APIFunction:
-	@set GOOS=linux& set GOARCH=arm64& set CGO_ENABLED=0& go build -o $(ARTIFACTS_DIR)/bootstrap ./cmd/api
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o $(ARTIFACTS_DIR)/bootstrap ./cmd/api
 
 build-WorkerFunction:
-	@set GOOS=linux& set GOARCH=arm64& set CGO_ENABLED=0& go build -o $(ARTIFACTS_DIR)/bootstrap ./cmd/worker
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o $(ARTIFACTS_DIR)/bootstrap ./cmd/worker
 
 # Deploy usando AWS SAM
 deploy: build
