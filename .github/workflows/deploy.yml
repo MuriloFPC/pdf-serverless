@@ -25,6 +25,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Run unit tests
+        run: make test
+
       - name: SAM Build and Deploy
         run: |
           sam build

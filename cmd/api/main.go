@@ -110,7 +110,7 @@ func main() {
 
 	if os.Getenv("LAMBDA_TASK_ROOT") != "" || os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != "" {
 		adapter := fiberadapter.New(app)
-		lambda.Start(adapter.ProxyWithContext)
+		lambda.Start(adapter.ProxyWithContextV2)
 	} else {
 		log.Fatal(app.Listen(":3000"))
 	}
