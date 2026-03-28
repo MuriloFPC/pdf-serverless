@@ -6,10 +6,10 @@ import (
 )
 
 type User struct {
-	ID           string    `json:"id"`
-	Email        string    `json:"email"`
-	PasswordHash string    `json:"-"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID           string    `json:"id" dynamodbav:"id"`
+	Email        string    `json:"email" dynamodbav:"email"`
+	PasswordHash string    `json:"-" dynamodbav:"password_hash"`
+	CreatedAt    time.Time `json:"created_at" dynamodbav:"created_at"`
 }
 
 type UserRepository interface {

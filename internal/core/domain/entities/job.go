@@ -24,15 +24,15 @@ const (
 )
 
 type PDFJob struct {
-	JobID       string         `json:"job_id"`
-	UserID      string         `json:"user_id"`
-	ProcessType ProcessType    `json:"process_type"`
-	Status      JobStatus      `json:"status"`
-	CreatedAt   time.Time      `json:"created_at"`
-	DeleteAt    time.Time      `json:"delete_at" omitzero:""`
-	InputFiles  []string       `json:"input_files"`
-	OutputFiles []string       `json:"output_files"`
-	Metadata    map[string]any `json:"metadata,omitempty"`
+	JobID       string         `json:"job_id" dynamodbav:"job_id"`
+	UserID      string         `json:"user_id" dynamodbav:"user_id"`
+	ProcessType ProcessType    `json:"process_type" dynamodbav:"process_type"`
+	Status      JobStatus      `json:"status" dynamodbav:"status"`
+	CreatedAt   time.Time      `json:"created_at" dynamodbav:"created_at"`
+	DeleteAt    time.Time      `json:"delete_at" omitzero:"" dynamodbav:"delete_at"`
+	InputFiles  []string       `json:"input_files" dynamodbav:"input_files"`
+	OutputFiles []string       `json:"output_files" dynamodbav:"output_files"`
+	Metadata    map[string]any `json:"metadata,omitempty" dynamodbav:"metadata,omitempty"`
 }
 
 type PDFJobRepository interface {
