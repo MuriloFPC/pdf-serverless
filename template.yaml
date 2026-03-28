@@ -44,10 +44,12 @@ Globals:
 Resources:
   APIFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
     Properties:
       FunctionName: pdf-serverless-api
       Handler: bootstrap
-      CodeUri: bin/api/
+      CodeUri: .
       Events:
         ApiEvent:
           Type: HttpApi
@@ -82,10 +84,12 @@ Resources:
 
   WorkerFunction:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
     Properties:
       FunctionName: pdf-serverless-worker
       Handler: bootstrap
-      CodeUri: bin/worker/
+      CodeUri: .
       Events:
         SQSEvent:
           Type: SQS

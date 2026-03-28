@@ -15,11 +15,6 @@ jobs:
         with:
           go-version: '1.26'
 
-      - name: Build Binaries
-        run: |
-          GOOS=linux GOARCH=arm64 go build -o bin/api/bootstrap ./cmd/api
-          GOOS=linux GOARCH=arm64 go build -o bin/worker/bootstrap ./cmd/worker
-
       - name: Setup SAM
         uses: aws-actions/setup-sam@v2
 
