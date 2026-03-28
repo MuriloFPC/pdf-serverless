@@ -4,6 +4,7 @@ import (
 	"crypto/subtle"
 	"errors"
 	"fmt"
+	"log"
 	"pdf_serverless/internal/core/domain/entities"
 	"time"
 
@@ -38,10 +39,12 @@ type LoginRequest struct {
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	req := new(RegisterRequest)
 	if err := c.BodyParser(req); err != nil {
+		log.Printf("Register: Error parsing request body: %v", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse JSON"})
 	}
 
 	if req.Email == "" || req.Password == "" {
+		log.Printf("Register: Missing email or password")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email and password are required"})
 	}
 
@@ -58,6 +61,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	}
 
 	if err := h.userRepo.Create(c.Context(), user); err != nil {
+		log.Printf("Register: Error creating user in repository: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create user"})
 	}
 
@@ -72,6 +76,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	user, err := h.userRepo.GetByEmail(c.Context(), req.Email)
 	if err != nil {
+		log.Printf("Login: Error getting user by email (%s): %v", req.Email, err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
 
@@ -87,6 +92,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	newHash := argon2.IDKey([]byte(req.Password), salt, 1, 64*1024, 4, 32)
 	if subtle.ConstantTimeCompare(hash, newHash) != 1 {
+		log.Printf("Login: Password mismatch for email: %s", req.Email)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
 
@@ -98,6 +104,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	t, err := token.SignedString([]byte(h.jwtSecret))
 	if err != nil {
+		log.Printf("Login: Error signing JWT: %v", err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
@@ -108,28 +115,33 @@ func (h *AuthHandler) JWTMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {
+			log.Printf("JWTMiddleware: Missing authorization header")
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing authorization header"})
 		}
 
 		const bearerPrefix = "Bearer "
 		if len(authHeader) <= len(bearerPrefix) || authHeader[:len(bearerPrefix)] != bearerPrefix {
+			log.Printf("JWTMiddleware: Invalid authorization header format")
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid authorization header format"})
 		}
 
 		tokenString := authHeader[len(bearerPrefix):]
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				log.Printf("JWTMiddleware: Unexpected signing method: %v", token.Header["alg"])
 				return nil, errors.New("unexpected signing method")
 			}
 			return []byte(h.jwtSecret), nil
 		})
 
 		if err != nil || !token.Valid {
+			log.Printf("JWTMiddleware: Invalid token: %v", err)
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token"})
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
+			log.Printf("JWTMiddleware: Invalid token claims")
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token claims"})
 		}
 
