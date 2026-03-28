@@ -2,10 +2,12 @@ package router
 
 import (
 	"crypto/subtle"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
 	"pdf_serverless/internal/core/domain/entities"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -81,14 +83,23 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	// Verify Argon2 hash
-	var saltHex, hashHex string
-	fmt.Sscanf(user.PasswordHash, "%[^.].%s", &saltHex, &hashHex)
+	parts := strings.Split(user.PasswordHash, ".")
+	if len(parts) != 2 {
+		log.Printf("Login: Invalid password hash format for email: %s", req.Email)
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
+	}
 
-	salt := make([]byte, len(saltHex)/2)
-	fmt.Sscanf(saltHex, "%x", &salt)
+	salt, err := hex.DecodeString(parts[0])
+	if err != nil {
+		log.Printf("Login: Error decoding salt for email %s: %v", req.Email, err)
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
+	}
 
-	hash := make([]byte, len(hashHex)/2)
-	fmt.Sscanf(hashHex, "%x", &hash)
+	hash, err := hex.DecodeString(parts[1])
+	if err != nil {
+		log.Printf("Login: Error decoding hash for email %s: %v", req.Email, err)
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
+	}
 
 	newHash := argon2.IDKey([]byte(req.Password), salt, 1, 64*1024, 4, 32)
 	if subtle.ConstantTimeCompare(hash, newHash) != 1 {
