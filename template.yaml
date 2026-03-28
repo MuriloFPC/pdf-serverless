@@ -54,7 +54,7 @@ Resources:
         ApiEvent:
           Type: HttpApi
           Properties:
-            Path: /{proxy+}
+            Path: $default
             Method: ANY
       Policies:
         - Statement:
