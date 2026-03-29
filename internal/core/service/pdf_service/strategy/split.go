@@ -66,7 +66,7 @@ func (s *SplitStrategy) Process(ctx context.Context, job *entities.PDFJob) error
 			return fmt.Errorf("failed to read split file %s: %w", file.Name(), err)
 		}
 
-		outputKey := fmt.Sprintf("outputs/%s/%s", job.JobID, file.Name())
+		outputKey := fmt.Sprintf("%s/output/%s", job.JobID, file.Name())
 		finalKey, err := s.storage.Upload(ctx, outputKey, data)
 		if err != nil {
 			return fmt.Errorf("failed to upload split file %s: %w", file.Name(), err)

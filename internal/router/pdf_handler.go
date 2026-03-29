@@ -83,7 +83,7 @@ func (h *PDFHandler) GetPresignedURL(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Job is not awaiting files"})
 	}
 
-	key := fmt.Sprintf("inputs/%s/%s", uuid.New().String(), filename)
+	key := fmt.Sprintf("%s/input/%s_%s.pdf", jobID, filename, uuid.New().String())
 
 	if err := h.service.AddInputFile(c.Context(), jobID, key); err != nil {
 		log.Printf("PDFHandler.GetPresignedURL: Error adding input file: %v", err)

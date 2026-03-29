@@ -44,7 +44,7 @@ func (s *UnprotectStrategy) Process(ctx context.Context, job *entities.PDFJob) e
 		return fmt.Errorf("failed to unprotect PDF: %w", err)
 	}
 
-	outputKey := fmt.Sprintf("outputs/%s/%s.pdf", job.JobID, uuid.New().String())
+	outputKey := fmt.Sprintf("%s/output/unprotected_%s.pdf", job.JobID, uuid.New().String())
 	finalKey, err := s.storage.Upload(ctx, outputKey, resultBuf.Bytes())
 	if err != nil {
 		return fmt.Errorf("failed to upload unprotected PDF: %w", err)

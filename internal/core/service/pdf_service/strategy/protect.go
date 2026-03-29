@@ -49,7 +49,7 @@ func (s *ProtectStrategy) Process(ctx context.Context, job *entities.PDFJob) err
 		return fmt.Errorf("failed to protect PDF: %w", err)
 	}
 
-	outputKey := fmt.Sprintf("outputs/%s/%s.pdf", job.JobID, uuid.New().String())
+	outputKey := fmt.Sprintf("%s/output/protected_%s.pdf", job.JobID, uuid.New().String())
 	finalKey, err := s.storage.Upload(ctx, outputKey, resultBuf.Bytes())
 	if err != nil {
 		return fmt.Errorf("failed to upload protected PDF: %w", err)
