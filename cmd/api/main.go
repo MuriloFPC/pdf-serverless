@@ -9,6 +9,7 @@ import (
 	"pdf_serverless/internal/core/service/pdf_service"
 	"pdf_serverless/internal/core/service/pdf_service/strategy"
 	"pdf_serverless/internal/infra/database"
+	"pdf_serverless/internal/infra/email"
 	"pdf_serverless/internal/infra/queue"
 	"pdf_serverless/internal/infra/storage"
 	"pdf_serverless/internal/router"
@@ -72,7 +73,8 @@ func main() {
 	if jwtSecret == "" {
 		jwtSecret = "supersecretkey"
 	}
-	authHandler := router.NewAuthHandler(userRepo, jwtSecret)
+	emailService := email.NewNoOpEmailService()
+	authHandler := router.NewAuthHandler(userRepo, emailService, jwtSecret)
 	pdfHandler := router.NewPDFHandler(pdfService, store)
 
 	// Start worker in background (only for memory-based demo)
@@ -105,6 +107,8 @@ func main() {
 
 	pdf := app.Group("/pdf", authHandler.JWTMiddleware())
 	pdf.Post("/process", pdfHandler.Process)
+	pdf.Get("/presigned-url/:id", pdfHandler.GetPresignedURL)
+	pdf.Post("/complete-upload/:id", pdfHandler.CompleteUpload)
 	pdf.Get("/status/:id", pdfHandler.GetStatus)
 	pdf.Get("/list", pdfHandler.List)
 

@@ -30,10 +30,31 @@ func NewPDFService(
 }
 
 func (s *PDFService) CreateJob(ctx context.Context, job *entities.PDFJob) error {
-	if err := s.jobRepo.Create(ctx, job); err != nil {
+	return s.jobRepo.Create(ctx, job)
+}
+
+func (s *PDFService) PublishJob(ctx context.Context, jobID string) error {
+	job, err := s.jobRepo.GetByID(ctx, jobID)
+	if err != nil {
 		return err
 	}
+
+	job.Status = entities.StatusPending
+	if err := s.jobRepo.Update(ctx, job); err != nil {
+		return err
+	}
+
 	return s.queue.Publish(ctx, job.JobID)
+}
+
+func (s *PDFService) AddInputFile(ctx context.Context, jobID string, key string) error {
+	job, err := s.jobRepo.GetByID(ctx, jobID)
+	if err != nil {
+		return err
+	}
+
+	job.InputFiles = append(job.InputFiles, key)
+	return s.jobRepo.Update(ctx, job)
 }
 
 func (s *PDFService) GetJobStatus(ctx context.Context, jobID string) (*entities.PDFJob, error) {

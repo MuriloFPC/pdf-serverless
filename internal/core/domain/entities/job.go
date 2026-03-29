@@ -8,10 +8,11 @@ import (
 type JobStatus string
 
 const (
-	StatusPending    JobStatus = "pending"
-	StatusProcessing JobStatus = "processing"
-	StatusCompleted  JobStatus = "completed"
-	StatusFailed     JobStatus = "failed"
+	StatusAwaitingFiles JobStatus = "awaiting_files"
+	StatusPending       JobStatus = "pending"
+	StatusProcessing    JobStatus = "processing"
+	StatusCompleted     JobStatus = "completed"
+	StatusFailed        JobStatus = "failed"
 )
 
 type ProcessType string

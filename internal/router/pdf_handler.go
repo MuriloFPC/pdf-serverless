@@ -25,62 +25,32 @@ func NewPDFHandler(service *pdf_service.PDFService, storage interfaces.StoragePr
 }
 
 type ProcessRequest struct {
-	Type     entities.ProcessType `form:"type"`
-	Metadata map[string]any       `form:"metadata"`
+	Type     entities.ProcessType `json:"type"`
+	Metadata map[string]any       `json:"metadata"`
+	Files    []string             `json:"files"`
 }
 
 func (h *PDFHandler) Process(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(string)
 
-	form, err := c.MultipartForm()
-	if err != nil {
-		log.Printf("PDFHandler.Process: Error parsing multipart form: %v", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to parse multipart form"})
+	var req ProcessRequest
+	if err := c.BodyParser(&req); err != nil {
+		log.Printf("PDFHandler.Process: Error parsing body: %v", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to parse body"})
 	}
 
-	processType := entities.ProcessType(c.FormValue("type"))
-	if processType == "" {
+	if req.Type == "" {
 		log.Printf("PDFHandler.Process: Missing process type")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Process type is required"})
-	}
-
-	files := form.File["files"]
-	if len(files) == 0 {
-		log.Printf("PDFHandler.Process: No files uploaded")
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No files uploaded"})
-	}
-
-	var inputFiles []string
-	for _, file := range files {
-		f, err := file.Open()
-		if err != nil {
-			log.Printf("PDFHandler.Process: Error opening file %s: %v", file.Filename, err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to open file"})
-		}
-		defer f.Close()
-
-		data := make([]byte, file.Size)
-		if _, err := f.Read(data); err != nil {
-			log.Printf("PDFHandler.Process: Error reading file %s: %v", file.Filename, err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to read file"})
-		}
-
-		key := fmt.Sprintf("inputs/%s/%s", uuid.New().String(), file.Filename)
-		s3Key, err := h.storage.Upload(c.Context(), key, data)
-		if err != nil {
-			log.Printf("PDFHandler.Process: Error uploading file %s to storage: %v", file.Filename, err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to upload file to storage"})
-		}
-		inputFiles = append(inputFiles, s3Key)
 	}
 
 	job := &entities.PDFJob{
 		JobID:       uuid.New().String(),
 		UserID:      userID,
-		ProcessType: processType,
-		Status:      entities.StatusPending,
+		ProcessType: req.Type,
+		Status:      entities.StatusAwaitingFiles,
 		CreatedAt:   time.Now(),
-		InputFiles:  inputFiles,
+		Metadata:    req.Metadata,
 	}
 
 	if err := h.service.CreateJob(c.Context(), job); err != nil {
@@ -88,7 +58,71 @@ func (h *PDFHandler) Process(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create job"})
 	}
 
-	return c.Status(fiber.StatusAccepted).JSON(job)
+	return c.Status(fiber.StatusCreated).JSON(job)
+}
+
+func (h *PDFHandler) GetPresignedURL(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(string)
+	jobID := c.Params("id")
+	filename := c.Query("filename")
+
+	if filename == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Filename is required"})
+	}
+
+	job, err := h.service.GetJobStatus(c.Context(), jobID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Job not found"})
+	}
+
+	if job.UserID != userID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Access denied"})
+	}
+
+	if job.Status != entities.StatusAwaitingFiles {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Job is not awaiting files"})
+	}
+
+	key := fmt.Sprintf("inputs/%s/%s", uuid.New().String(), filename)
+
+	if err := h.service.AddInputFile(c.Context(), jobID, key); err != nil {
+		log.Printf("PDFHandler.GetPresignedURL: Error adding input file: %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update job with new file"})
+	}
+
+	url, err := h.storage.GetPresignedUploadURL(c.Context(), key)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate presigned URL"})
+	}
+
+	return c.JSON(fiber.Map{
+		"url": url,
+		"key": key,
+	})
+}
+
+func (h *PDFHandler) CompleteUpload(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(string)
+	jobID := c.Params("id")
+
+	job, err := h.service.GetJobStatus(c.Context(), jobID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Job not found"})
+	}
+
+	if job.UserID != userID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Access denied"})
+	}
+
+	if job.Status != entities.StatusAwaitingFiles {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Job is not awaiting files"})
+	}
+
+	if err := h.service.PublishJob(c.Context(), jobID); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to complete upload"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "pending"})
 }
 
 func (h *PDFHandler) GetStatus(c *fiber.Ctx) error {

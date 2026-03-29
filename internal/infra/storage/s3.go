@@ -5,14 +5,16 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 type S3Storage struct {
-	client *s3.Client
-	bucket string
+	client    *s3.Client
+	presigner *s3.PresignClient
+	bucket    string
 }
 
 func NewS3Storage(client *s3.Client) *S3Storage {
@@ -21,8 +23,9 @@ func NewS3Storage(client *s3.Client) *S3Storage {
 		bucket = "pdf-serverless-opensource"
 	}
 	return &S3Storage{
-		client: client,
-		bucket: bucket,
+		client:    client,
+		presigner: s3.NewPresignClient(client),
+		bucket:    bucket,
 	}
 }
 
@@ -56,4 +59,16 @@ func (s *S3Storage) Download(ctx context.Context, key string) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+func (s *S3Storage) GetPresignedUploadURL(ctx context.Context, key string) (string, error) {
+	request, err := s.presigner.PresignPutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+	}, s3.WithPresignExpires(15*time.Minute))
+	if err != nil {
+		return "", fmt.Errorf("failed to generate presigned URL: %w", err)
+	}
+
+	return request.URL, nil
 }

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"pdf_serverless/internal/core/domain/entities"
+	"pdf_serverless/internal/core/domain/interfaces"
 	"strings"
 	"time"
 
@@ -17,14 +18,16 @@ import (
 )
 
 type AuthHandler struct {
-	userRepo  entities.UserRepository
-	jwtSecret string
+	userRepo     entities.UserRepository
+	emailService interfaces.EmailService
+	jwtSecret    string
 }
 
-func NewAuthHandler(userRepo entities.UserRepository, secret string) *AuthHandler {
+func NewAuthHandler(userRepo entities.UserRepository, emailService interfaces.EmailService, secret string) *AuthHandler {
 	return &AuthHandler{
-		userRepo:  userRepo,
-		jwtSecret: secret,
+		userRepo:     userRepo,
+		emailService: emailService,
+		jwtSecret:    secret,
 	}
 }
 
@@ -48,6 +51,13 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	if req.Email == "" || req.Password == "" {
 		log.Printf("Register: Missing email or password")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email and password are required"})
+	}
+
+	// Check if user already exists
+	existingUser, err := h.userRepo.GetByEmail(c.Context(), req.Email)
+	if err == nil && existingUser != nil {
+		log.Printf("Register: User already exists with email: %s", req.Email)
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "User already exists"})
 	}
 
 	// Hash password with Argon2
