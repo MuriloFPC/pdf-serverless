@@ -26,8 +26,8 @@ func NewPDFHandler(service *pdf_service.PDFService, storage interfaces.StoragePr
 
 type ProcessRequest struct {
 	Type     entities.ProcessType `json:"type"`
+	Password string               `json:"password,omitempty"`
 	Metadata map[string]any       `json:"metadata"`
-	Files    []string             `json:"files"`
 }
 
 func (h *PDFHandler) Process(c *fiber.Ctx) error {
@@ -44,12 +44,18 @@ func (h *PDFHandler) Process(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Process type is required"})
 	}
 
+	if (req.Type == entities.TypeProtect || req.Type == entities.TypeRemovePassword) && req.Password == "" {
+		log.Printf("PDFHandler.Process: Password required for %s", req.Type)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Password is required for this process type"})
+	}
+
 	job := &entities.PDFJob{
 		JobID:       uuid.New().String(),
 		UserID:      userID,
 		ProcessType: req.Type,
 		Status:      entities.StatusAwaitingFiles,
 		CreatedAt:   time.Now(),
+		Password:    req.Password,
 		Metadata:    req.Metadata,
 	}
 

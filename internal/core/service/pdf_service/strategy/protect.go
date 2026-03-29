@@ -25,9 +25,8 @@ func (s *ProtectStrategy) Process(ctx context.Context, job *entities.PDFJob) err
 		return fmt.Errorf("no input files to protect")
 	}
 
-	password, ok := job.Metadata["password"].(string)
-	if !ok || password == "" {
-		return fmt.Errorf("password is required in metadata for protect operation")
+	if job.Password == "" {
+		return fmt.Errorf("password is required for protect operation")
 	}
 
 	key := job.InputFiles[0]
@@ -41,8 +40,8 @@ func (s *ProtectStrategy) Process(ctx context.Context, job *entities.PDFJob) err
 
 	// Configure encryption
 	conf := model.NewDefaultConfiguration()
-	conf.UserPW = password
-	conf.OwnerPW = password
+	conf.UserPW = job.Password
+	conf.OwnerPW = job.Password
 	// You can also set other permissions here if needed
 
 	if err := api.Encrypt(rs, &resultBuf, conf); err != nil {

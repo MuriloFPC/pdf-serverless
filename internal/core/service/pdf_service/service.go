@@ -90,10 +90,12 @@ func (s *PDFService) ProcessJob(ctx context.Context, jobID string) error {
 
 	if err := activeStrategy.Process(ctx, job); err != nil {
 		job.Status = entities.StatusFailed
+		job.Password = "" // Clear sensitive info
 		s.jobRepo.Update(ctx, job)
 		return err
 	}
 
 	job.Status = entities.StatusCompleted
+	job.Password = "" // Clear sensitive info
 	return s.jobRepo.Update(ctx, job)
 }

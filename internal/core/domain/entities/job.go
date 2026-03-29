@@ -33,6 +33,7 @@ type PDFJob struct {
 	DeleteAt    time.Time      `json:"delete_at" omitzero:"" dynamodbav:"delete_at"`
 	InputFiles  []string       `json:"input_files" dynamodbav:"input_files"`
 	OutputFiles []string       `json:"output_files" dynamodbav:"output_files"`
+	Password    string         `json:"password,omitempty" dynamodbav:"password,omitempty"`
 	Metadata    map[string]any `json:"metadata,omitempty" dynamodbav:"metadata,omitempty"`
 }
 

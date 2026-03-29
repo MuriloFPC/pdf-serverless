@@ -25,8 +25,6 @@ func (s *UnprotectStrategy) Process(ctx context.Context, job *entities.PDFJob) e
 		return fmt.Errorf("no input files to unprotect")
 	}
 
-	password, _ := job.Metadata["password"].(string)
-
 	key := job.InputFiles[0]
 	data, err := s.storage.Download(ctx, key)
 	if err != nil {
@@ -37,8 +35,8 @@ func (s *UnprotectStrategy) Process(ctx context.Context, job *entities.PDFJob) e
 	var resultBuf bytes.Buffer
 
 	conf := model.NewDefaultConfiguration()
-	conf.UserPW = password
-	conf.OwnerPW = password
+	conf.UserPW = job.Password
+	conf.OwnerPW = job.Password
 
 	if err := api.Decrypt(rs, &resultBuf, conf); err != nil {
 		return fmt.Errorf("failed to unprotect PDF: %w", err)
