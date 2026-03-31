@@ -129,7 +129,13 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	return c.JSON(fiber.Map{"token": t})
+	return c.JSON(fiber.Map{
+		"token": t,
+		"user": fiber.Map{
+			"id":    user.ID,
+			"email": user.Email,
+		},
+	})
 }
 
 func (h *AuthHandler) JWTMiddleware() fiber.Handler {
