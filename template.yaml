@@ -42,6 +42,25 @@ Globals:
         JWT_SECRET: !Ref JwtSecret
 
 Resources:
+  ServerlessHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - "Content-Type"
+          - "Authorization"
+          - "Origin"
+          - "Accept"
+        AllowMethods:
+          - "GET"
+          - "POST"
+          - "PUT"
+          - "DELETE"
+          - "OPTIONS"
+        MaxAge: 600
+
   APIFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -54,11 +73,13 @@ Resources:
         ApiEvent:
           Type: HttpApi
           Properties:
+            ApiId: !Ref ServerlessHttpApi
             Path: /{proxy+}
             Method: ANY
         RootEvent:
           Type: HttpApi
           Properties:
+            ApiId: !Ref ServerlessHttpApi
             Path: /
             Method: ANY
       Policies:
@@ -184,6 +205,18 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - HEAD
+            AllowedOrigins:
+              - "*"
+            MaxAge: 3000
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:

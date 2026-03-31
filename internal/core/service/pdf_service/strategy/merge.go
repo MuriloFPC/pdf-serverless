@@ -41,7 +41,7 @@ func (s *MergeStrategy) Process(ctx context.Context, job *entities.PDFJob) error
 		return fmt.Errorf("failed to merge PDFs: %w", err)
 	}
 
-	outputKey := fmt.Sprintf("%s/output/merged_%s.pdf", job.JobID, uuid.New().String())
+	outputKey := fmt.Sprintf("ttl/%s/%s/output/merged_%s.pdf", job.TTL, job.JobID, uuid.New().String())
 	finalKey, err := s.storage.Upload(ctx, outputKey, resultBuf.Bytes())
 	if err != nil {
 		return fmt.Errorf("failed to upload merged PDF: %w", err)

@@ -26,6 +26,7 @@ func NewPDFHandler(service *pdf_service.PDFService, storage interfaces.StoragePr
 
 type ProcessRequest struct {
 	Type     entities.ProcessType `json:"type"`
+	TTL      entities.TTLType     `json:"ttl"`
 	Password string               `json:"password,omitempty"`
 	Metadata map[string]any       `json:"metadata"`
 }
@@ -49,12 +50,21 @@ func (h *PDFHandler) Process(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Password is required for this process type"})
 	}
 
+	if req.TTL == "" {
+		req.TTL = entities.TTL6h // Default TTL
+	}
+
+	createdAt := time.Now()
+	deleteAt := calculateDeleteAt(createdAt, req.TTL)
+
 	job := &entities.PDFJob{
 		JobID:       uuid.New().String(),
 		UserID:      userID,
 		ProcessType: req.Type,
 		Status:      entities.StatusAwaitingFiles,
-		CreatedAt:   time.Now(),
+		TTL:         req.TTL,
+		CreatedAt:   createdAt,
+		DeleteAt:    deleteAt,
 		Password:    req.Password,
 		Metadata:    req.Metadata,
 	}
@@ -89,7 +99,7 @@ func (h *PDFHandler) GetPresignedURL(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Job is not awaiting files"})
 	}
 
-	key := fmt.Sprintf("%s/input/%s_%s.pdf", jobID, filename, uuid.New().String())
+	key := fmt.Sprintf("ttl/%s/%s/input/%s_%s.pdf", job.TTL, jobID, filename, uuid.New().String())
 
 	if err := h.service.AddInputFile(c.Context(), jobID, key); err != nil {
 		log.Printf("PDFHandler.GetPresignedURL: Error adding input file: %v", err)
@@ -159,4 +169,37 @@ func (h *PDFHandler) List(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(jobs)
+}
+
+func calculateDeleteAt(createdAt time.Time, ttl entities.TTLType) time.Time {
+	var duration time.Duration
+	switch ttl {
+	case entities.TTL6h:
+		duration = 6 * time.Hour
+	case entities.TTL24h:
+		duration = 24 * time.Hour
+	case entities.TTL72h:
+		duration = 72 * time.Hour
+	case entities.TTL1Week:
+		duration = 7 * 24 * time.Hour
+	case entities.TTL1Month:
+		duration = 30 * 24 * time.Hour
+	case entities.TTL3Month:
+		duration = 90 * 24 * time.Hour
+	case entities.TTL6Month:
+		duration = 180 * 24 * time.Hour
+	case entities.TTL1Year:
+		duration = 365 * 24 * time.Hour
+	case entities.TTL3Year:
+		duration = 3 * 365 * 24 * time.Hour
+	case entities.TTL5Year:
+		duration = 5 * 365 * 24 * time.Hour
+	case entities.TTL10Year:
+		duration = 10 * 365 * 24 * time.Hour
+	case entities.TTLForever:
+		return time.Time{} // No expiration
+	default:
+		duration = 6 * time.Hour // Default to 6h if unknown
+	}
+	return createdAt.Add(duration)
 }

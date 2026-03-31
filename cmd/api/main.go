@@ -21,6 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	fiberadapter "github.com/awslabs/aws-lambda-go-api-proxy/fiber"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
@@ -30,6 +31,16 @@ func main() {
 	app := fiber.New()
 	app.Use(logger.New())
 	app.Use(recover.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
+	}))
+
+	// Handle OPTIONS request specifically for Lambda compatibility if needed
+	app.Options("/*", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusNoContent)
+	})
 
 	// AWS Configuration
 	cfg, err := config.LoadDefaultConfig(ctx)
