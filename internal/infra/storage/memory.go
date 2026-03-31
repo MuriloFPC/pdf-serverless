@@ -36,3 +36,7 @@ func (s *MemoryStorage) Download(ctx context.Context, key string) ([]byte, error
 func (s *MemoryStorage) GetPresignedUploadURL(ctx context.Context, key string) (string, error) {
 	return "http://localhost/upload/" + key, nil
 }
+
+func (s *MemoryStorage) GetPresignedDownloadURL(ctx context.Context, key string) (string, error) {
+	return "http://localhost/download/" + key, nil
+}

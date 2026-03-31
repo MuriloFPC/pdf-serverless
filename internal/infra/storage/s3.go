@@ -73,3 +73,15 @@ func (s *S3Storage) GetPresignedUploadURL(ctx context.Context, key string) (stri
 
 	return request.URL, nil
 }
+
+func (s *S3Storage) GetPresignedDownloadURL(ctx context.Context, key string) (string, error) {
+	request, err := s.presigner.PresignGetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+	}, s3.WithPresignExpires(1*time.Hour))
+	if err != nil {
+		return "", fmt.Errorf("failed to generate presigned download URL: %w", err)
+	}
+
+	return request.URL, nil
+}

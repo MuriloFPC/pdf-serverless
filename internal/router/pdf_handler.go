@@ -171,6 +171,51 @@ func (h *PDFHandler) List(c *fiber.Ctx) error {
 	return c.JSON(jobs)
 }
 
+func (h *PDFHandler) GetDownloadURL(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(string)
+	jobID := c.Params("id")
+	filename := c.Query("filename")
+
+	if filename == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Filename is required"})
+	}
+
+	job, err := h.service.GetJobStatus(c.Context(), jobID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Job not found"})
+	}
+
+	if job.UserID != userID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Access denied"})
+	}
+
+	if job.Status != entities.StatusCompleted {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Job is not completed"})
+	}
+
+	// Find the file in output_files
+	var found bool
+	for _, f := range job.OutputFiles {
+		if f == filename {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "File not found in job outputs"})
+	}
+
+	url, err := h.storage.GetPresignedDownloadURL(c.Context(), filename)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate download URL"})
+	}
+
+	return c.JSON(fiber.Map{
+		"url": url,
+	})
+}
+
 func calculateDeleteAt(createdAt time.Time, ttl entities.TTLType) time.Time {
 	var duration time.Duration
 	switch ttl {

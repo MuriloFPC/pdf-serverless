@@ -121,6 +121,7 @@ func main() {
 	pdf.Get("/presigned-url/:id", pdfHandler.GetPresignedURL)
 	pdf.Post("/complete-upload/:id", pdfHandler.CompleteUpload)
 	pdf.Get("/status/:id", pdfHandler.GetStatus)
+	pdf.Get("/download/:id", pdfHandler.GetDownloadURL)
 	pdf.Get("/list", pdfHandler.List)
 
 	if os.Getenv("LAMBDA_TASK_ROOT") != "" || os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != "" {
