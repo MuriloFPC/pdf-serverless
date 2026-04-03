@@ -237,7 +237,6 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: pdf-serverless-opensource-frontend
-      AccessControl: PublicRead
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
