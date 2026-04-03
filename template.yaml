@@ -233,7 +233,41 @@ Resources:
       QueueName: pdf-serverless-queue
       VisibilityTimeout: 300
 
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: pdf-serverless-opensource-frontend
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Id: PublicReadPolicy
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: "*"
+            Action: 's3:GetObject'
+            Resource: !Sub "arn:aws:s3:::${FrontendBucket}/*"
+
 Outputs:
   ApiUrl:
     Description: "API Gateway endpoint URL"
     Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
+  FrontendUrl:
+    Description: "Frontend S3 Website URL"
+    Value: !GetAtt FrontendBucket.WebsiteURL
+  FrontendBucketName:
+    Description: "Frontend S3 Bucket Name"
+    Value: !Ref FrontendBucket

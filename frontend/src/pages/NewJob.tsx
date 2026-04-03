@@ -15,10 +15,12 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 type ProcessType = 'merge' | 'split' | 'protect' | 'unprotect';
 
 const NewJob: React.FC = () => {
+  const { t } = useTranslation();
   const [type, setType] = useState<ProcessType>('merge');
   const [files, setFiles] = useState<File[]>([]);
   const [password, setPassword] = useState('');
@@ -41,7 +43,7 @@ const NewJob: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (files.length === 0) {
-      setError('Selecione pelo menos um arquivo');
+      setError(t('new_job_page.error_no_files'));
       return;
     }
 
@@ -86,24 +88,24 @@ const NewJob: React.FC = () => {
 
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Erro ao processar arquivos. Verifique se o backend está rodando.');
+      setError(err.response?.data?.error || t('new_job_page.error_default'));
     } finally {
       setLoading(false);
     }
   };
 
   const types = [
-    { id: 'merge', label: 'Mesclar', icon: Combine, desc: 'Unir vários PDFs em um só' },
-    { id: 'split', label: 'Dividir', icon: Scissors, desc: 'Separar páginas do PDF' },
-    { id: 'protect', label: 'Proteger', icon: Lock, desc: 'Adicionar senha ao PDF' },
-    { id: 'unprotect', label: 'Desproteger', icon: Unlock, desc: 'Remover senha do PDF' },
+    { id: 'merge', label: t('new_job_page.tools.merge.label'), icon: Combine, desc: t('new_job_page.tools.merge.desc') },
+    { id: 'split', label: t('new_job_page.tools.split.label'), icon: Scissors, desc: t('new_job_page.tools.split.desc') },
+    { id: 'protect', label: t('new_job_page.tools.protect.label'), icon: Lock, desc: t('new_job_page.tools.protect.desc') },
+    { id: 'unprotect', label: t('new_job_page.tools.unprotect.label'), icon: Unlock, desc: t('new_job_page.tools.unprotect.desc') },
   ];
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold">Novo Processo</h1>
-        <p className="text-dark-400 mt-2">Escolha a ferramenta e envie seus arquivos</p>
+        <h1 className="text-3xl font-bold">{t('new_job_page.title')}</h1>
+        <p className="text-dark-400 mt-2">{t('new_job_page.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -138,7 +140,7 @@ const NewJob: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium text-dark-300 mb-4">
-              Arquivos PDF
+              {t('new_job_page.tools.merge.label')}
             </label>
             
             <div className="border-2 border-dashed border-dark-800 rounded-xl p-8 text-center hover:border-blue-500/50 transition-colors relative group">
@@ -154,7 +156,7 @@ const NewJob: React.FC = () => {
                   <Upload size={24} />
                 </div>
                 <div className="text-dark-300">
-                  <span className="font-bold text-blue-500">Clique para enviar</span> ou arraste arquivos
+                  <span className="font-bold text-blue-500">{t('new_job_page.select_files')}</span> {t('new_job_page.drag_drop')}
                 </div>
                 <div className="text-xs text-dark-500">Apenas arquivos .PDF</div>
               </div>
@@ -185,7 +187,7 @@ const NewJob: React.FC = () => {
           {(type === 'protect' || type === 'unprotect') && (
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-dark-300 mb-1.5">
-                Senha do PDF
+                {t('new_job_page.password_label')}
               </label>
               <input
                 id="password"
@@ -193,7 +195,7 @@ const NewJob: React.FC = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Insira a senha"
+                placeholder="••••••••"
                 className="w-full bg-dark-950 border border-dark-800 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
               />
             </div>
@@ -208,11 +210,11 @@ const NewJob: React.FC = () => {
               {loading ? (
                 <>
                   <Loader2 className="animate-spin" size={20} />
-                  <span>Enviando... {uploadProgress}%</span>
+                  <span>{t('new_job_page.processing')} {uploadProgress}%</span>
                 </>
               ) : (
                 <>
-                  <span>Iniciar Processamento</span>
+                  <span>{t('new_job_page.process_button')}</span>
                   <ArrowRight size={20} />
                 </>
               )}

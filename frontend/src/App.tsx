@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import NewJob from './pages/NewJob';
+import Landing from './pages/Landing';
 import { Loader2 } from 'lucide-react';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -27,6 +28,8 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 };
 
 const AppContent: React.FC = () => {
+  const { user } = useAuth();
+  
   return (
     <div className="min-h-screen bg-dark-950 text-dark-50">
       <Navbar />
@@ -36,11 +39,7 @@ const AppContent: React.FC = () => {
           <Route path="/register" element={<Register />} />
           <Route 
             path="/" 
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            } 
+            element={user ? <Dashboard /> : <Landing />} 
           />
           <Route 
             path="/new-job" 

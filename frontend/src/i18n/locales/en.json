@@ -1,0 +1,223 @@
+﻿{
+  "common": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "back": "Back",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "new_job": "New Job",
+    "get_started": "Get Started",
+    "sign_in": "Sign In"
+  },
+  "landing": {
+    "hero": {
+      "title": "Secure & Ephemeral PDF Processing",
+      "subtitle": "PDF Serverless is the enterprise solution for handling documents without compromising privacy. We process your files and permanently delete them immediately after.",
+      "cta_start": "Start Now",
+      "cta_login": "Sign In"
+    },
+    "security": {
+      "title": "Security and Governance",
+      "subtitle": "Designed for companies that cannot risk their data on third-party servers.",
+      "storage": {
+        "title": "Zero Storage",
+        "desc": "Your original and resulting files are automatically deleted from the system in less than 24 hours. No data is kept permanently."
+      },
+      "encryption": {
+        "title": "Total Encryption",
+        "desc": "We use SSL/TLS for transfer and temporary presigned URLs. Only you have access to the generated download link."
+      },
+      "governance": {
+        "title": "Data Governance",
+        "desc": "Full compliance with LGPD and GDPR. Detailed logs of who processed what, but without file content in the database."
+      }
+    },
+    "workflow": {
+      "title": "Ephemeral and Efficient Flow",
+      "step1": {
+        "title": "Direct Upload",
+        "desc": "The file goes directly to a secure Bucket via Presigned URL, without passing through intermediate servers."
+      },
+      "step2": {
+        "title": "Serverless Processing",
+        "desc": "Dedicated Lambdas process your PDF in an isolated environment. Scalable and isolated."
+      },
+      "step3": {
+        "title": "Self-destruction",
+        "desc": "After download or timeout expiration, all digital traces are eliminated."
+      },
+      "realtime_dashboard": "Real-time Dashboard"
+    },
+    "features": {
+      "merge": "Merge PDFs",
+      "split": "Split PDFs",
+      "protect": "Encrypt/Protect",
+      "unprotect": "Remove Protection"
+    },
+    "comparison": {
+      "title": "Choose how you want to run",
+      "subtitle": "Whether in our optimized cloud or on your own infrastructure, security is guaranteed.",
+      "platform": {
+        "title": "Use the Platform",
+        "tag": "Recommended",
+        "subtitle": "Ready for immediate use",
+        "item1": {
+          "title": "Lower Maintenance Cost",
+          "desc": "Zero spending on servers, databases, or infrastructure team."
+        },
+        "item2": {
+          "title": "Always Updated",
+          "desc": "Instant access to the latest features and performance improvements."
+        },
+        "item3": {
+          "title": "Effortless Security",
+          "desc": "Security patches and compliance applied automatically by us."
+        },
+        "cta": "Start Free"
+      },
+      "self_hosted": {
+        "title": "Self-Hosted",
+        "subtitle": "Full control in your AWS",
+        "item1": {
+          "title": "Your Own Governance",
+          "desc": "Keep data within your network perimeter and VPC."
+        },
+        "item2": {
+          "title": "Custom Configurations",
+          "desc": "Adjust processing and retention limits as needed."
+        },
+        "item3": {
+          "title": "Full Auditing",
+          "desc": "Full access to infrastructure logs and Lambda execution."
+        },
+        "cta": "View Documentation"
+      }
+    },
+    "api_first": {
+      "badge": "Easy Integration",
+      "title": "API First: Built for Developers",
+      "subtitle": "Our architecture was designed from day one to be consumed by other systems. Whether on our Cloud platform or your own infrastructure, integrations are simple and powerful.",
+      "item1": {
+        "title": "Pure REST Endpoints",
+        "desc": "Simple contracts for upload, processing, and download."
+      },
+      "item2": {
+        "title": "JWT Authentication",
+        "desc": "Industry-standard security for your API keys."
+      },
+      "item3": {
+        "title": "API Consistency",
+        "desc": "The same API the frontend uses is available for your backend."
+      },
+      "response_json": "JSON Response"
+    },
+    "open_source": {
+      "badge": "Open Source",
+      "title": "Your AWS, Your Data, Your Rules",
+      "subtitle": "Maximum privacy means total control. You can deploy PDF Serverless directly to your AWS account in minutes using AWS SAM.",
+      "item1": {
+        "title": "Self-Hosted",
+        "desc": "Keep all infrastructure under your governance and reduce costs."
+      },
+      "item2": {
+        "title": "Open Source",
+        "desc": "Transparent and auditable code available to the community."
+      },
+      "cta": "View on GitHub"
+    },
+    "footer": {
+      "text": "© 2026 PDF Serverless. Security first.",
+      "subtext": "100% ephemeral infrastructure on AWS."
+    }
+  },
+  "login_page": {
+    "title": "Welcome back",
+    "subtitle": "Sign in to manage your PDF files",
+    "no_account": "Don't have an account?",
+    "signup_link": "Sign up",
+    "error_incomplete": "The API did not return all necessary data (token/user).",
+    "error_default": "Error signing in. Check your credentials."
+  },
+  "register_page": {
+    "title": "Create your account",
+    "subtitle": "Start processing your PDFs securely",
+    "have_account": "Already have an account?",
+    "login_link": "Sign in",
+    "name_label": "Full Name",
+    "name_placeholder": "Your name",
+    "email_placeholder": "your@email.com",
+    "password_placeholder": "••••••••",
+    "confirm_password_label": "Confirm Password",
+    "cta": "Create Account"
+  },
+  "dashboard_page": {
+    "title": "My Processes",
+    "subtitle": "Track the status of your files",
+    "new_process": "New Process",
+    "refresh": "Refresh",
+    "no_jobs": "No processes found",
+    "start_first": "Start your first PDF process",
+    "table": {
+      "type": "Type",
+      "status": "Status",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "status": {
+      "completed": "Completed",
+      "failed": "Failed",
+      "processing": "Processing",
+      "awaiting_files": "Awaiting Files",
+      "pending": "Pending"
+    },
+    "types": {
+      "merge": "Merge",
+      "split": "Split",
+      "protect": "Protect",
+      "unprotect": "Unprotect",
+      "remove_password": "Remove Password"
+    },
+    "download": "Download",
+    "error_fetch": "Error loading your processes. Try again.",
+    "error_download": "Could not generate download link."
+  },
+  "new_job_page": {
+    "title": "New Process",
+    "subtitle": "Choose the tool and upload your files",
+    "select_files": "Select PDF files",
+    "drag_drop": "or drag and drop here",
+    "password_label": "PDF Password (if required)",
+    "process_button": "Process Files",
+    "processing": "Processing...",
+    "error_no_files": "Select at least one file",
+    "error_default": "Error processing files. Check if the backend is running.",
+    "tools": {
+      "merge": {
+        "label": "Merge",
+        "desc": "Join multiple PDFs into one"
+      },
+      "split": {
+        "label": "Split",
+        "desc": "Separate PDF pages"
+      },
+      "protect": {
+        "label": "Protect",
+        "desc": "Add password to PDF"
+      },
+      "unprotect": {
+        "label": "Unprotect",
+        "desc": "Remove password from PDF"
+      }
+    }
+  }
+}

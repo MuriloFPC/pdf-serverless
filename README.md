@@ -66,10 +66,14 @@ The project uses AWS SAM for infrastructure as code.
 
 #### GitHub Actions
 
-A workflow is provided in `.github/workflows/deploy.yml`. To use it, add the following secrets to your GitHub repository:
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `AWS_REGION`
+Workflows are provided in `.github/workflows/`. To use them, add the following secrets to your GitHub repository:
+
+- `AWS_ACCESS_KEY_ID`: Your AWS access key.
+- `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key.
+- `AWS_REGION`: Your AWS region (e.g., `us-east-1`).
+- `JWT_SECRET`: Secret key for JWT signing.
+- `VITE_API_URL`: The URL of your deployed API (used by the frontend build).
+- `FRONTEND_S3_BUCKET`: The name of the S3 bucket where the frontend will be hosted.
 
 ## API Endpoints
 

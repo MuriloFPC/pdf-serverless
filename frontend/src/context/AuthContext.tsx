@@ -23,14 +23,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+    
+    if (savedToken && savedUser && savedUser !== 'undefined') {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        if (parsedUser && typeof parsedUser === 'object') {
+          setToken(savedToken);
+          setUser(parsedUser);
+        } else {
+          // Se o dado for inválido (como null ou não objeto), removemos do storage
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      } catch (error) {
+        console.error('Erro ao carregar usuário do localStorage:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
     setLoading(false);
   }, []);
 
   const login = (newToken: string, newUser: User) => {
+    if (!newToken || !newUser) {
+      console.error('Tentativa de login com token ou usuário inválido:', { newToken, newUser });
+      return;
+    }
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('token', newToken);

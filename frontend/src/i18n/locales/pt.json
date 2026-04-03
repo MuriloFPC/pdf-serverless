@@ -1,0 +1,223 @@
+﻿{
+  "common": {
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "logout": "Sair",
+    "email": "E-mail",
+    "password": "Senha",
+    "back": "Voltar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso"
+  },
+  "nav": {
+    "home": "Início",
+    "dashboard": "Dashboard",
+    "new_job": "Novo Processo",
+    "get_started": "Começar Agora",
+    "sign_in": "Entrar"
+  },
+  "landing": {
+    "hero": {
+      "title": "Processamento de PDF Seguro & Efêmero",
+      "subtitle": "O PDF Serverless é a solução corporativa para manipular documentos sem comprometer a privacidade. Processamos seus arquivos e os deletamos permanentemente logo em seguida.",
+      "cta_start": "Começar Agora",
+      "cta_login": "Entrar na Conta"
+    },
+    "security": {
+      "title": "Segurança e Governança",
+      "subtitle": "Projetado para empresas que não podem arriscar seus dados em servidores de terceiros.",
+      "storage": {
+        "title": "Armazenamento Zero",
+        "desc": "Seus arquivos originais e resultantes são deletados automaticamente do sistema em menos de 24 horas. Nenhum dado é mantido permanentemente."
+      },
+      "encryption": {
+        "title": "Criptografia Total",
+        "desc": "Utilizamos SSL/TLS para transferência e URLs pré-assinadas temporárias. Somente você tem acesso ao link de download gerado."
+      },
+      "governance": {
+        "title": "Governança de Dados",
+        "desc": "Conformidade total com LGPD e GDPR. Logs detalhados de quem processou o que, mas sem o conteúdo dos arquivos no banco de dados."
+      }
+    },
+    "workflow": {
+      "title": "Fluxo Efêmero e Eficiente",
+      "step1": {
+        "title": "Upload Direto",
+        "desc": "O arquivo vai diretamente para um Bucket seguro via Presigned URL, sem passar por servidores intermediários."
+      },
+      "step2": {
+        "title": "Processamento Serverless",
+        "desc": "Lambdas dedicadas processam seu PDF em um ambiente isolado. Escalável e isolado."
+      },
+      "step3": {
+        "title": "Auto-destruição",
+        "desc": "Após o download ou expiração do tempo limite, todos os vestígios digitais são eliminados."
+      },
+      "realtime_dashboard": "Dashboard em tempo real"
+    },
+    "features": {
+      "merge": "Mesclar PDFs",
+      "split": "Dividir PDFs",
+      "protect": "Criptografar/Proteger",
+      "unprotect": "Remover Proteção"
+    },
+    "comparison": {
+      "title": "Escolha como quer rodar",
+      "subtitle": "Seja na nossa nuvem otimizada ou na sua própria infraestrutura, a segurança é garantida.",
+      "platform": {
+        "title": "Usar a Plataforma",
+        "tag": "Recomendado",
+        "subtitle": "Pronto para uso imediato",
+        "item1": {
+          "title": "Menor Custo de Manutenção",
+          "desc": "Zero gastos com servidores, banco de dados ou equipe de infraestrutura."
+        },
+        "item2": {
+          "title": "Sempre Atualizado",
+          "desc": "Acesso instantâneo aos últimos recursos e melhorias de performance."
+        },
+        "item3": {
+          "title": "Segurança sem Esforço",
+          "desc": "Patches de segurança e conformidade aplicados automaticamente por nós."
+        },
+        "cta": "Começar Grátis"
+      },
+      "self_hosted": {
+        "title": "Self-Hosted",
+        "subtitle": "Controle total na sua AWS",
+        "item1": {
+          "title": "Sua Própria Governança",
+          "desc": "Mantenha os dados dentro do seu perímetro de rede e VPC."
+        },
+        "item2": {
+          "title": "Configurações Customizadas",
+          "desc": "Ajuste limites de processamento e retenção conforme sua necessidade."
+        },
+        "item3": {
+          "title": "Auditoria Completa",
+          "desc": "Acesso total aos logs de infraestrutura e execução das Lambdas."
+        },
+        "cta": "Ver Documentação"
+      }
+    },
+    "api_first": {
+      "badge": "Integração Facilitada",
+      "title": "API First: Desenvolvido para Desenvolvedores",
+      "subtitle": "Nossa arquitetura foi pensada desde o primeiro dia para ser consumida por outros sistemas. Seja na nossa plataforma Cloud ou na sua infraestrutura própria, as integrações são simples e poderosas.",
+      "item1": {
+        "title": "Endpoints REST Puros",
+        "desc": "Contratos simples para upload, processamento e download."
+      },
+      "item2": {
+        "title": "Autenticação JWT",
+        "desc": "Segurança padrão de mercado para suas chaves de API."
+      },
+      "item3": {
+        "title": "Consistência de API",
+        "desc": "A mesma API que o frontend usa está disponível para seu backend."
+      },
+      "response_json": "Resposta JSON"
+    },
+    "open_source": {
+      "badge": "Código Aberto",
+      "title": "Sua AWS, Seus Dados, Suas Regras",
+      "subtitle": "Privacidade máxima significa controle total. Você pode implantar o PDF Serverless diretamente na sua conta AWS em minutos usando o AWS SAM.",
+      "item1": {
+        "title": "Self-Hosted",
+        "desc": "Mantenha toda a infraestrutura sob sua governança e reduza custos."
+      },
+      "item2": {
+        "title": "Open Source",
+        "desc": "Código transparente e auditável disponível para a comunidade."
+      },
+      "cta": "Ver no GitHub"
+    },
+    "footer": {
+      "text": "© 2026 PDF Serverless. Segurança em primeiro lugar.",
+      "subtext": "Infraestrutura 100% efêmera na AWS."
+    }
+  },
+  "login_page": {
+    "title": "Bem-vindo de volta",
+    "subtitle": "Entre para gerenciar seus arquivos PDF",
+    "no_account": "Não tem uma conta?",
+    "signup_link": "Cadastre-se",
+    "error_incomplete": "A API não retornou todos os dados necessários (token/user).",
+    "error_default": "Erro ao fazer login. Verifique suas credenciais."
+  },
+  "register_page": {
+    "title": "Crie sua conta",
+    "subtitle": "Comece a processar seus PDFs com segurança",
+    "have_account": "Já tem uma conta?",
+    "login_link": "Entrar",
+    "name_label": "Nome Completo",
+    "name_placeholder": "Seu nome",
+    "email_placeholder": "seu@email.com",
+    "password_placeholder": "••••••••",
+    "confirm_password_label": "Confirmar Senha",
+    "cta": "Criar Conta"
+  },
+  "dashboard_page": {
+    "title": "Meus Processos",
+    "subtitle": "Acompanhe o status dos seus arquivos",
+    "new_process": "Novo Processo",
+    "refresh": "Atualizar",
+    "no_jobs": "Nenhum processo encontrado",
+    "start_first": "Inicie seu primeiro processo de PDF",
+    "table": {
+      "type": "Tipo",
+      "status": "Status",
+      "date": "Data",
+      "actions": "Ações"
+    },
+    "status": {
+      "completed": "Concluído",
+      "failed": "Falhou",
+      "processing": "Processando",
+      "awaiting_files": "Aguardando Arquivos",
+      "pending": "Pendente"
+    },
+    "types": {
+      "merge": "Mesclar",
+      "split": "Dividir",
+      "protect": "Proteger",
+      "unprotect": "Desproteger",
+      "remove_password": "Remover Senha"
+    },
+    "download": "Baixar",
+    "error_fetch": "Erro ao carregar seus processos. Tente novamente.",
+    "error_download": "Não foi possível gerar o link de download."
+  },
+  "new_job_page": {
+    "title": "Novo Processo",
+    "subtitle": "Escolha a ferramenta e envie seus arquivos",
+    "select_files": "Selecionar arquivos PDF",
+    "drag_drop": "ou arraste e solte aqui",
+    "password_label": "Senha do PDF (se necessário)",
+    "process_button": "Processar Arquivos",
+    "processing": "Processando...",
+    "error_no_files": "Selecione pelo menos um arquivo",
+    "error_default": "Erro ao processar arquivos. Verifique se o backend está rodando.",
+    "tools": {
+      "merge": {
+        "label": "Mesclar",
+        "desc": "Unir vários PDFs em um só"
+      },
+      "split": {
+        "label": "Dividir",
+        "desc": "Separar páginas do PDF"
+      },
+      "protect": {
+        "label": "Proteger",
+        "desc": "Adicionar senha ao PDF"
+      },
+      "unprotect": {
+        "label": "Desproteger",
+        "desc": "Remover senha do PDF"
+      }
+    }
+  }
+}
