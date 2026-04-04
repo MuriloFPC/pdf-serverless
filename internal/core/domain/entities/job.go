@@ -41,6 +41,14 @@ const (
 	TypeRemovePassword ProcessType = "remove_password"
 )
 
+type FileMetadata struct {
+	Path       string    `json:"path" dynamodbav:"path"`
+	SizeKB     float64   `json:"size_kb" dynamodbav:"size_kb"`
+	PageCount  int       `json:"page_count" dynamodbav:"page_count"`
+	Filename   string    `json:"filename" dynamodbav:"filename"`
+	UploadedAt time.Time `json:"uploaded_at" dynamodbav:"uploaded_at"`
+}
+
 type PDFJob struct {
 	JobID       string         `json:"job_id" dynamodbav:"job_id"`
 	UserID      string         `json:"user_id" dynamodbav:"user_id"`
@@ -49,8 +57,8 @@ type PDFJob struct {
 	TTL         TTLType        `json:"ttl" omitzero:"" dynamodbav:"ttl"`
 	CreatedAt   time.Time      `json:"created_at" dynamodbav:"created_at"`
 	DeleteAt    time.Time      `json:"delete_at" omitzero:"" dynamodbav:"delete_at"`
-	InputFiles  []string       `json:"input_files" dynamodbav:"input_files"`
-	OutputFiles []string       `json:"output_files" dynamodbav:"output_files"`
+	InputFiles  []FileMetadata `json:"input_files" dynamodbav:"input_files"`
+	OutputFiles []FileMetadata `json:"output_files" dynamodbav:"output_files"`
 	Password    string         `json:"password,omitempty" dynamodbav:"password,omitempty"`
 	Metadata    map[string]any `json:"metadata,omitempty" dynamodbav:"metadata,omitempty"`
 }

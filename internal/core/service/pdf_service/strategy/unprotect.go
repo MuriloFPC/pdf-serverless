@@ -25,30 +25,35 @@ func (s *UnprotectStrategy) Process(ctx context.Context, job *entities.PDFJob) e
 		return fmt.Errorf("no input files to unprotect")
 	}
 
-	key := job.InputFiles[0]
-	data, err := s.storage.Download(ctx, key)
+	input := &job.InputFiles[0]
+	data, err := s.storage.Download(ctx, input.Path)
 	if err != nil {
-		return fmt.Errorf("failed to download input file %s: %w", key, err)
+		return fmt.Errorf("failed to download input file %s: %w", input.Path, err)
 	}
-
-	rs := bytes.NewReader(data)
-	var resultBuf bytes.Buffer
 
 	conf := model.NewDefaultConfiguration()
 	conf.UserPW = job.Password
 	conf.OwnerPW = job.Password
 
+	UpdateInputMetadata(input, data, conf)
+	rs := bytes.NewReader(data)
+
+	var resultBuf bytes.Buffer
+
 	if err := api.Decrypt(rs, &resultBuf, conf); err != nil {
 		return fmt.Errorf("failed to unprotect PDF: %w", err)
 	}
 
+	resData := resultBuf.Bytes()
 	outputKey := fmt.Sprintf("ttl/%s/%s/output/unprotected_%s.pdf", job.TTL, job.JobID, uuid.New().String())
-	finalKey, err := s.storage.Upload(ctx, outputKey, resultBuf.Bytes())
+	finalKey, err := s.storage.Upload(ctx, outputKey, resData)
 	if err != nil {
 		return fmt.Errorf("failed to upload unprotected PDF: %w", err)
 	}
 
-	job.OutputFiles = []string{finalKey}
+	job.OutputFiles = []entities.FileMetadata{
+		NewFileMetadata(finalKey, fmt.Sprintf("unprotected_%s.pdf", job.JobID), resData, nil),
+	}
 	return nil
 }
 

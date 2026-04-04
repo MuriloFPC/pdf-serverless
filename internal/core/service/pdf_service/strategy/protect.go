@@ -29,13 +29,15 @@ func (s *ProtectStrategy) Process(ctx context.Context, job *entities.PDFJob) err
 		return fmt.Errorf("password is required for protect operation")
 	}
 
-	key := job.InputFiles[0]
-	data, err := s.storage.Download(ctx, key)
+	input := &job.InputFiles[0]
+	data, err := s.storage.Download(ctx, input.Path)
 	if err != nil {
-		return fmt.Errorf("failed to download input file %s: %w", key, err)
+		return fmt.Errorf("failed to download input file %s: %w", input.Path, err)
 	}
 
+	UpdateInputMetadata(input, data, nil)
 	rs := bytes.NewReader(data)
+
 	var resultBuf bytes.Buffer
 
 	// Configure encryption
@@ -48,13 +50,16 @@ func (s *ProtectStrategy) Process(ctx context.Context, job *entities.PDFJob) err
 		return fmt.Errorf("failed to protect PDF: %w", err)
 	}
 
+	resData := resultBuf.Bytes()
 	outputKey := fmt.Sprintf("ttl/%s/%s/output/protected_%s.pdf", job.TTL, job.JobID, uuid.New().String())
-	finalKey, err := s.storage.Upload(ctx, outputKey, resultBuf.Bytes())
+	finalKey, err := s.storage.Upload(ctx, outputKey, resData)
 	if err != nil {
 		return fmt.Errorf("failed to upload protected PDF: %w", err)
 	}
 
-	job.OutputFiles = []string{finalKey}
+	job.OutputFiles = []entities.FileMetadata{
+		NewFileMetadata(finalKey, fmt.Sprintf("protected_%s.pdf", job.JobID), resData, conf),
+	}
 	return nil
 }
 

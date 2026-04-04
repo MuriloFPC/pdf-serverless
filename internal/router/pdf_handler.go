@@ -101,7 +101,7 @@ func (h *PDFHandler) GetPresignedURL(c *fiber.Ctx) error {
 
 	key := fmt.Sprintf("ttl/%s/%s/input/%s_%s.pdf", job.TTL, jobID, filename, uuid.New().String())
 
-	if err := h.service.AddInputFile(c.Context(), jobID, key); err != nil {
+	if err := h.service.AddInputFile(c.Context(), jobID, key, filename); err != nil {
 		log.Printf("PDFHandler.GetPresignedURL: Error adding input file: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update job with new file"})
 	}
@@ -196,7 +196,7 @@ func (h *PDFHandler) GetDownloadURL(c *fiber.Ctx) error {
 	// Find the file in output_files
 	var found bool
 	for _, f := range job.OutputFiles {
-		if f == filename {
+		if f.Path == filename {
 			found = true
 			break
 		}

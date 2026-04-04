@@ -6,6 +6,7 @@ import (
 	"pdf_serverless/internal/core/domain/entities"
 	"pdf_serverless/internal/core/domain/interfaces"
 	"pdf_serverless/internal/core/service/pdf_service/strategy"
+	"time"
 )
 
 type PDFService struct {
@@ -47,13 +48,17 @@ func (s *PDFService) PublishJob(ctx context.Context, jobID string) error {
 	return s.queue.Publish(ctx, job.JobID)
 }
 
-func (s *PDFService) AddInputFile(ctx context.Context, jobID string, key string) error {
+func (s *PDFService) AddInputFile(ctx context.Context, jobID string, key string, filename string) error {
 	job, err := s.jobRepo.GetByID(ctx, jobID)
 	if err != nil {
 		return err
 	}
 
-	job.InputFiles = append(job.InputFiles, key)
+	job.InputFiles = append(job.InputFiles, entities.FileMetadata{
+		Path:       key,
+		Filename:   filename,
+		UploadedAt: time.Now(),
+	})
 	return s.jobRepo.Update(ctx, job)
 }
 

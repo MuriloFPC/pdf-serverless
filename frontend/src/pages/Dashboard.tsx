@@ -15,12 +15,21 @@ import {
 import { cn } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
 
+interface FileMetadata {
+  path: string;
+  size_kb: number;
+  page_count: number;
+  filename: string;
+  uploaded_at: string;
+}
+
 interface Job {
   job_id: string;
   process_type: string;
   status: string;
   created_at: string;
-  output_files?: string[];
+  input_files?: FileMetadata[];
+  output_files?: FileMetadata[];
 }
 
 const Dashboard: React.FC = () => {
@@ -198,18 +207,35 @@ const Dashboard: React.FC = () => {
 
                 {job.status === 'completed' && job.output_files && job.output_files.length > 0 && (
                   <div className="flex flex-col gap-2">
-                    {job.output_files.map((file, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleDownload(job.job_id, file)}
-                        className="flex items-center gap-2 bg-dark-800 hover:bg-dark-700 text-dark-50 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
-                      >
-                        <Download size={16} />
-                        {job.output_files && job.output_files.length > 1 
-                          ? `${t('dashboard_page.download')} ${idx + 1}` 
-                          : t('dashboard_page.download')}
-                      </button>
-                    ))}
+                    {(() => {
+                      const zipFile = job.output_files.find(f => f.path.endsWith('.zip'));
+                      const filesToDisplay = zipFile ? [zipFile] : job.output_files;
+                      
+                      return filesToDisplay.map((file, idx) => (
+                        <div key={idx} className="flex flex-col gap-1">
+                          <button
+                            onClick={() => handleDownload(job.job_id, file.path)}
+                            className="flex items-center gap-2 bg-dark-800 hover:bg-dark-700 text-dark-50 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+                          >
+                            <Download size={16} />
+                            {zipFile 
+                              ? t('dashboard_page.download_all') || 'Download All (ZIP)'
+                              : job.output_files && job.output_files.length > 1 
+                                ? `${t('dashboard_page.download')} ${idx + 1}` 
+                                : t('dashboard_page.download')}
+                          </button>
+                          <div className="flex items-center gap-3 px-1 text-[10px] text-dark-500 font-medium">
+                            <span>{file.size_kb.toFixed(1)} KB</span>
+                            {file.page_count > 0 && (
+                              <>
+                                <span className="w-1 h-1 rounded-full bg-dark-700" />
+                                <span>{file.page_count} {file.page_count === 1 ? t('common.page') || 'page' : t('common.pages') || 'pages'}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ));
+                    })()}
                   </div>
                 )}
               </div>

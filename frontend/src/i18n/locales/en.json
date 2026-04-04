@@ -10,7 +10,9 @@
     "confirm": "Confirm",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "page": "page",
+    "pages": "pages"
   },
   "nav": {
     "home": "Home",
@@ -188,6 +190,7 @@
       "remove_password": "Remove Password"
     },
     "download": "Download",
+    "download_all": "Download All (ZIP)",
     "error_fetch": "Error loading your processes. Try again.",
     "error_download": "Could not generate download link."
   },

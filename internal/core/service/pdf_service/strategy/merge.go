@@ -26,11 +26,13 @@ func (s *MergeStrategy) Process(ctx context.Context, job *entities.PDFJob) error
 	}
 
 	var readers []io.ReadSeeker
-	for _, key := range job.InputFiles {
-		data, err := s.storage.Download(ctx, key)
+	for i := range job.InputFiles {
+		input := &job.InputFiles[i]
+		data, err := s.storage.Download(ctx, input.Path)
 		if err != nil {
-			return fmt.Errorf("failed to download input file %s: %w", key, err)
+			return fmt.Errorf("failed to download input file %s: %w", input.Path, err)
 		}
+		UpdateInputMetadata(input, data, nil)
 		readers = append(readers, bytes.NewReader(data))
 	}
 
@@ -41,13 +43,16 @@ func (s *MergeStrategy) Process(ctx context.Context, job *entities.PDFJob) error
 		return fmt.Errorf("failed to merge PDFs: %w", err)
 	}
 
+	resData := resultBuf.Bytes()
 	outputKey := fmt.Sprintf("ttl/%s/%s/output/merged_%s.pdf", job.TTL, job.JobID, uuid.New().String())
-	finalKey, err := s.storage.Upload(ctx, outputKey, resultBuf.Bytes())
+	finalKey, err := s.storage.Upload(ctx, outputKey, resData)
 	if err != nil {
 		return fmt.Errorf("failed to upload merged PDF: %w", err)
 	}
 
-	job.OutputFiles = []string{finalKey}
+	job.OutputFiles = []entities.FileMetadata{
+		NewFileMetadata(finalKey, fmt.Sprintf("merged_%s.pdf", job.JobID), resData, nil),
+	}
 	return nil
 }
 

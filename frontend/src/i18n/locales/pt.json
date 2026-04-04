@@ -10,7 +10,9 @@
     "confirm": "Confirmar",
     "loading": "Carregando...",
     "error": "Erro",
-    "success": "Sucesso"
+    "success": "Sucesso",
+    "page": "página",
+    "pages": "páginas"
   },
   "nav": {
     "home": "Início",
@@ -188,6 +190,7 @@
       "remove_password": "Remover Senha"
     },
     "download": "Baixar",
+    "download_all": "Baixar Tudo (ZIP)",
     "error_fetch": "Erro ao carregar seus processos. Tente novamente.",
     "error_download": "Não foi possível gerar o link de download."
   },
