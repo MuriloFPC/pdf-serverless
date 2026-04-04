@@ -34,7 +34,10 @@ func TestPDFService_ProcessJob(t *testing.T) {
 		ProcessType: entities.TypeMerge,
 		Status:      entities.StatusPending,
 		CreatedAt:   time.Now(),
-		InputFiles:  []string{"test1.pdf", "test2.pdf"},
+		InputFiles: []entities.FileMetadata{
+			{Path: "test1.pdf", Filename: "test1.pdf", UploadedAt: time.Now()},
+			{Path: "test2.pdf", Filename: "test2.pdf", UploadedAt: time.Now()},
+		},
 	}
 
 	// Create dummy PDF files in storage
