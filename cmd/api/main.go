@@ -123,6 +123,7 @@ func main() {
 	pdf.Get("/status/:id", pdfHandler.GetStatus)
 	pdf.Get("/download/:id", pdfHandler.GetDownloadURL)
 	pdf.Get("/list", pdfHandler.List)
+	pdf.Delete("/:id", pdfHandler.Delete)
 
 	if os.Getenv("LAMBDA_TASK_ROOT") != "" || os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != "" {
 		adapter := fiberadapter.New(app)

@@ -8,17 +8,18 @@ import (
 type JobStatus string
 
 const (
-	StatusAwaitingFiles JobStatus = "awaiting_files"
-	StatusPending       JobStatus = "pending"
-	StatusProcessing    JobStatus = "processing"
-	StatusCompleted     JobStatus = "completed"
-	StatusFailed        JobStatus = "failed"
+	StatusAwaitingFiles         JobStatus = "awaiting_files"
+	StatusPending               JobStatus = "pending"
+	StatusProcessing            JobStatus = "processing"
+	StatusCompleted             JobStatus = "completed"
+	StatusFailed                JobStatus = "failed"
+	StatusManuallyExcluded      JobStatus = "manually_excluded"
+	StatusAutomaticallyExcluded JobStatus = "automatically_excluded"
 )
 
 type TTLType string
 
 const (
-	TTL6h      TTLType = "6h"
 	TTL24h     TTLType = "24h"
 	TTL72h     TTLType = "72h"
 	TTL1Week   TTLType = "1week"
@@ -57,6 +58,7 @@ type PDFJob struct {
 	TTL         TTLType        `json:"ttl" omitzero:"" dynamodbav:"ttl"`
 	CreatedAt   time.Time      `json:"created_at" dynamodbav:"created_at"`
 	DeleteAt    time.Time      `json:"delete_at" omitzero:"" dynamodbav:"delete_at"`
+	DeletedAt   time.Time      `json:"deleted_at" omitzero:"" dynamodbav:"deleted_at"`
 	InputFiles  []FileMetadata `json:"input_files" dynamodbav:"input_files"`
 	OutputFiles []FileMetadata `json:"output_files" dynamodbav:"output_files"`
 	Password    string         `json:"password,omitempty" dynamodbav:"password,omitempty"`

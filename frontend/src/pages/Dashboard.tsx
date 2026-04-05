@@ -9,6 +9,7 @@ import {
   XCircle, 
   Loader2, 
   Download,
+  Trash2,
   AlertCircle,
   RefreshCcw
 } from 'lucide-react';
@@ -30,6 +31,7 @@ interface Job {
   created_at: string;
   input_files?: FileMetadata[];
   output_files?: FileMetadata[];
+  deleted_at?: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -69,17 +71,23 @@ const Dashboard: React.FC = () => {
       case 'failed': return <XCircle size={18} className="text-red-500" />;
       case 'processing': return <Loader2 size={18} className="text-blue-500 animate-spin" />;
       case 'awaiting_files': return <Clock size={18} className="text-yellow-500" />;
+      case 'manually_excluded':
+      case 'automatically_excluded':
+      case 'deleted': return <Trash2 size={18} className="text-red-400" />;
       default: return <Clock size={18} className="text-dark-400" />;
     }
   };
 
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status: string, job?: Job) => {
     switch (status) {
       case 'completed': return t('dashboard_page.status.completed');
       case 'failed': return t('dashboard_page.status.failed');
       case 'processing': return t('dashboard_page.status.processing');
       case 'awaiting_files': return t('dashboard_page.status.awaiting_files');
       case 'pending': return t('dashboard_page.status.pending');
+      case 'manually_excluded': return t('dashboard_page.status.manually_excluded');
+      case 'automatically_excluded': return t('dashboard_page.status.automatically_excluded');
+      case 'deleted': return t('dashboard_page.status.deleted') || 'Deleted';
       default: return status;
     }
   };
@@ -108,6 +116,20 @@ const Dashboard: React.FC = () => {
     } catch (err) {
       console.error('Erro ao obter URL de download:', err);
       alert(t('dashboard_page.error_download'));
+    }
+  };
+
+  const handleDelete = async (jobId: string) => {
+    if (!window.confirm(t('dashboard_page.delete_confirm'))) {
+      return;
+    }
+
+    try {
+      await api.delete(`/pdf/${jobId}`);
+      fetchJobs();
+    } catch (err) {
+      console.error('Erro ao deletar job:', err);
+      alert(t('dashboard_page.error_delete') || 'Failed to delete files');
     }
   };
 
@@ -198,10 +220,11 @@ const Dashboard: React.FC = () => {
                   {getStatusIcon(job.status)}
                   <span className={cn(
                     "text-sm font-medium",
+                    (job.status === 'manually_excluded' || job.status === 'automatically_excluded' || job.status === 'deleted') ? "text-red-400" :
                     job.status === 'completed' ? "text-green-500" : 
                     job.status === 'failed' ? "text-red-500" : "text-dark-300"
                   )}>
-                    {getStatusLabel(job.status)}
+                    {getStatusLabel(job.status, job)}
                   </span>
                 </div>
 
@@ -237,6 +260,16 @@ const Dashboard: React.FC = () => {
                       ));
                     })()}
                   </div>
+                )}
+
+                {job.status === 'completed' && (
+                  <button
+                    onClick={() => handleDelete(job.job_id)}
+                    className="p-2 text-dark-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                    title={t('dashboard_page.delete')}
+                  >
+                    <Trash2 size={20} />
+                  </button>
                 )}
               </div>
             </div>

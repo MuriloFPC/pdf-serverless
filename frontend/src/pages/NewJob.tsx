@@ -55,7 +55,7 @@ const NewJob: React.FC = () => {
       const jobResponse = await api.post('/pdf/process', {
         type,
         password,
-        ttl: '6h',
+        ttl: '24h',
         metadata: {}
       });
 

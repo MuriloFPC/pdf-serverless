@@ -50,8 +50,8 @@ func (h *PDFHandler) Process(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Password is required for this process type"})
 	}
 
-	if req.TTL == "" {
-		req.TTL = entities.TTL6h // Default TTL
+	if req.TTL == "" || req.TTL == "6h" {
+		req.TTL = entities.TTL24h // Default TTL
 	}
 
 	createdAt := time.Now()
@@ -156,6 +156,11 @@ func (h *PDFHandler) GetStatus(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Access denied"})
 	}
 
+	// Update status if it was completed but is now past expiration time
+	if job.Status == entities.StatusCompleted && !job.DeleteAt.IsZero() && time.Now().After(job.DeleteAt) {
+		job.Status = entities.StatusAutomaticallyExcluded
+	}
+
 	return c.JSON(job)
 }
 
@@ -166,6 +171,13 @@ func (h *PDFHandler) List(c *fiber.Ctx) error {
 	if err != nil {
 		log.Printf("PDFHandler.List: Error listing jobs for user %s: %v", userID, err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to list jobs"})
+	}
+
+	now := time.Now()
+	for i := range jobs {
+		if jobs[i].Status == entities.StatusCompleted && !jobs[i].DeleteAt.IsZero() && now.After(jobs[i].DeleteAt) {
+			jobs[i].Status = entities.StatusAutomaticallyExcluded
+		}
 	}
 
 	return c.JSON(jobs)
@@ -216,11 +228,21 @@ func (h *PDFHandler) GetDownloadURL(c *fiber.Ctx) error {
 	})
 }
 
+func (h *PDFHandler) Delete(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(string)
+	jobID := c.Params("id")
+
+	if err := h.service.DeleteJobFiles(c.Context(), userID, jobID); err != nil {
+		log.Printf("PDFHandler.Delete: Error deleting job %s: %v", jobID, err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete job files"})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
 func calculateDeleteAt(createdAt time.Time, ttl entities.TTLType) time.Time {
 	var duration time.Duration
 	switch ttl {
-	case entities.TTL6h:
-		duration = 6 * time.Hour
 	case entities.TTL24h:
 		duration = 24 * time.Hour
 	case entities.TTL72h:
@@ -244,7 +266,7 @@ func calculateDeleteAt(createdAt time.Time, ttl entities.TTLType) time.Time {
 	case entities.TTLForever:
 		return time.Time{} // No expiration
 	default:
-		duration = 6 * time.Hour // Default to 6h if unknown
+		duration = 24 * time.Hour // Default to 24h if unknown
 	}
 	return createdAt.Add(duration)
 }

@@ -85,3 +85,14 @@ func (s *S3Storage) GetPresignedDownloadURL(ctx context.Context, key string) (st
 
 	return request.URL, nil
 }
+
+func (s *S3Storage) Delete(ctx context.Context, key string) error {
+	_, err := s.client.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to delete file from S3: %w", err)
+	}
+	return nil
+}

@@ -33,7 +33,7 @@
       "subtitle": "Diseñado para empresas que no pueden arriesgar sus datos en servidores de terceros.",
       "storage": {
         "title": "Almacenamiento Cero",
-        "desc": "Sus archivos originales y resultantes se eliminan automáticamente del sistema en menos de 24 horas. Ningún dato se conserva permanentemente."
+        "desc": "Sus archivos originales y resultantes se eliminan automáticamente del sistema en hasta 24 horas. Ningún dato se conserva permanentemente."
       },
       "encryption": {
         "title": "Cifrado Total",
@@ -180,7 +180,10 @@
       "failed": "Fallido",
       "processing": "Procesando",
       "awaiting_files": "Esperando Archivos",
-      "pending": "Pendiente"
+      "pending": "Pendiente",
+      "deleted": "Eliminado",
+      "manually_excluded": "Eliminado Manualmente",
+      "automatically_excluded": "Eliminado Automáticamente"
     },
     "types": {
       "merge": "Combinar",
@@ -191,6 +194,8 @@
     },
     "download": "Descargar",
     "download_all": "Descargar Todo (ZIP)",
+    "delete": "Eliminar",
+    "delete_confirm": "¿Estás seguro de que deseas eliminar os arquivos?",
     "error_fetch": "Error al cargar sus procesos. Inténtelo de nuevo.",
     "error_download": "No se pudo generar el enlace de descarga."
   },

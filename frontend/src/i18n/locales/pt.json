@@ -33,7 +33,7 @@
       "subtitle": "Projetado para empresas que não podem arriscar seus dados em servidores de terceiros.",
       "storage": {
         "title": "Armazenamento Zero",
-        "desc": "Seus arquivos originais e resultantes são deletados automaticamente do sistema em menos de 24 horas. Nenhum dado é mantido permanentemente."
+        "desc": "Seus arquivos originais e resultantes são deletados automaticamente do sistema em até 24 horas. Nenhum dado é mantido permanentemente."
       },
       "encryption": {
         "title": "Criptografia Total",
@@ -180,7 +180,10 @@
       "failed": "Falhou",
       "processing": "Processando",
       "awaiting_files": "Aguardando Arquivos",
-      "pending": "Pendente"
+      "pending": "Pendente",
+      "deleted": "Deletado",
+      "manually_excluded": "Excluído Manualmente",
+      "automatically_excluded": "Excluído Automaticamente"
     },
     "types": {
       "merge": "Mesclar",
@@ -191,6 +194,8 @@
     },
     "download": "Baixar",
     "download_all": "Baixar Tudo (ZIP)",
+    "delete": "Deletar",
+    "delete_confirm": "Tem certeza que deseja deletar os arquivos?",
     "error_fetch": "Erro ao carregar seus processos. Tente novamente.",
     "error_download": "Não foi possível gerar o link de download."
   },

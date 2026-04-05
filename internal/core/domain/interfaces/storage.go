@@ -9,4 +9,5 @@ type StorageProvider interface {
 	Download(ctx context.Context, key string) ([]byte, error)
 	GetPresignedUploadURL(ctx context.Context, key string) (string, error)
 	GetPresignedDownloadURL(ctx context.Context, key string) (string, error)
+	Delete(ctx context.Context, key string) error
 }

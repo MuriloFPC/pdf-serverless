@@ -223,9 +223,46 @@ Resources:
               SSEAlgorithm: AES256
       LifecycleConfiguration:
         Rules:
-          - Id: DeleteOldFiles
+          - Id: Expire24h
             Status: Enabled
+            Prefix: ttl/24h/
+            ExpirationInDays: 1
+          - Id: Expire72h
+            Status: Enabled
+            Prefix: ttl/72h/
+            ExpirationInDays: 3
+          - Id: Expire1Week
+            Status: Enabled
+            Prefix: ttl/1week/
             ExpirationInDays: 7
+          - Id: Expire1Month
+            Status: Enabled
+            Prefix: ttl/1month/
+            ExpirationInDays: 30
+          - Id: Expire3Month
+            Status: Enabled
+            Prefix: ttl/3month/
+            ExpirationInDays: 90
+          - Id: Expire6Month
+            Status: Enabled
+            Prefix: ttl/6month/
+            ExpirationInDays: 180
+          - Id: Expire1Year
+            Status: Enabled
+            Prefix: ttl/1year/
+            ExpirationInDays: 365
+          - Id: Expire3Years
+            Status: Enabled
+            Prefix: ttl/3years/
+            ExpirationInDays: 1095
+          - Id: Expire5Years
+            Status: Enabled
+            Prefix: ttl/5years/
+            ExpirationInDays: 1825
+          - Id: Expire10Years
+            Status: Enabled
+            Prefix: ttl/10years/
+            ExpirationInDays: 3650
 
   PDFQueue:
     Type: AWS::SQS::Queue

@@ -40,3 +40,10 @@ func (s *MemoryStorage) GetPresignedUploadURL(ctx context.Context, key string) (
 func (s *MemoryStorage) GetPresignedDownloadURL(ctx context.Context, key string) (string, error) {
 	return "http://localhost/download/" + key, nil
 }
+
+func (s *MemoryStorage) Delete(ctx context.Context, key string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	delete(s.data, key)
+	return nil
+}

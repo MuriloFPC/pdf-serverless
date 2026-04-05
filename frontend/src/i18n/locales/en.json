@@ -33,7 +33,7 @@
       "subtitle": "Designed for companies that cannot risk their data on third-party servers.",
       "storage": {
         "title": "Zero Storage",
-        "desc": "Your original and resulting files are automatically deleted from the system in less than 24 hours. No data is kept permanently."
+        "desc": "Your original and resulting files are automatically deleted from the system in up to 24 hours. No data is kept permanently."
       },
       "encryption": {
         "title": "Total Encryption",
@@ -180,7 +180,9 @@
       "failed": "Failed",
       "processing": "Processing",
       "awaiting_files": "Awaiting Files",
-      "pending": "Pending"
+      "pending": "Pending",
+      "manually_excluded": "Manually Excluded",
+      "automatically_excluded": "Automatically Excluded"
     },
     "types": {
       "merge": "Merge",
@@ -191,6 +193,8 @@
     },
     "download": "Download",
     "download_all": "Download All (ZIP)",
+    "delete": "Delete",
+    "delete_confirm": "Are you sure you want to delete the files?",
     "error_fetch": "Error loading your processes. Try again.",
     "error_download": "Could not generate download link."
   },

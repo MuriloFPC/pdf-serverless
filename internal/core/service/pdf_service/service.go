@@ -104,3 +104,33 @@ func (s *PDFService) ProcessJob(ctx context.Context, jobID string) error {
 	job.Password = "" // Clear sensitive info
 	return s.jobRepo.Update(ctx, job)
 }
+
+func (s *PDFService) DeleteJobFiles(ctx context.Context, userID string, jobID string) error {
+	job, err := s.jobRepo.GetByID(ctx, jobID)
+	if err != nil {
+		return err
+	}
+
+	if job.UserID != userID {
+		return errors.New("access denied")
+	}
+
+	// Delete input files from storage
+	for _, f := range job.InputFiles {
+		if f.Path != "" {
+			_ = s.storage.Delete(ctx, f.Path)
+		}
+	}
+
+	// Delete output files from storage
+	for _, f := range job.OutputFiles {
+		if f.Path != "" {
+			_ = s.storage.Delete(ctx, f.Path)
+		}
+	}
+
+	job.DeletedAt = time.Now()
+	job.Status = entities.StatusManuallyExcluded
+
+	return s.jobRepo.Update(ctx, job)
+}
