@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const getStatusLabel = (status: string, job?: Job) => {
+  const getStatusLabel = (status: string) => {
     switch (status) {
       case 'completed': return t('dashboard_page.status.completed');
       case 'failed': return t('dashboard_page.status.failed');
@@ -224,7 +224,7 @@ const Dashboard: React.FC = () => {
                     job.status === 'completed' ? "text-green-500" : 
                     job.status === 'failed' ? "text-red-500" : "text-dark-300"
                   )}>
-                    {getStatusLabel(job.status, job)}
+                    {getStatusLabel(job.status)}
                   </span>
                 </div>
 
