@@ -76,6 +76,7 @@ func main() {
 		strategy.NewSplitStrategy(store),
 		strategy.NewProtectStrategy(store),
 		strategy.NewUnprotectStrategy(store),
+		strategy.NewOptimizeStrategy(store),
 	}
 	pdfService := pdf_service.NewPDFService(jobRepo, store, q, strategies)
 

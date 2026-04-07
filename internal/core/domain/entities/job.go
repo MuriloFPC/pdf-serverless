@@ -40,6 +40,7 @@ const (
 	TypeSplit          ProcessType = "split"
 	TypeProtect        ProcessType = "protect"
 	TypeRemovePassword ProcessType = "remove_password"
+	TypeOptimize       ProcessType = "optimize"
 )
 
 type FileMetadata struct {

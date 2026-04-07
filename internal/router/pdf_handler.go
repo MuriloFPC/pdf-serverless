@@ -202,7 +202,18 @@ func (h *PDFHandler) GetDownloadURL(c *fiber.Ctx) error {
 	}
 
 	if job.Status != entities.StatusCompleted {
+		if job.Status == entities.StatusManuallyExcluded {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "File was manually deleted"})
+		}
+		if job.Status == entities.StatusAutomaticallyExcluded || (!job.DeleteAt.IsZero() && time.Now().After(job.DeleteAt)) {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "File has expired and was automatically deleted"})
+		}
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Job is not completed"})
+	}
+
+	// Update status if it was completed but is now past expiration time (double check)
+	if !job.DeleteAt.IsZero() && time.Now().After(job.DeleteAt) {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "File has expired and was automatically deleted"})
 	}
 
 	// Find the file in output_files
@@ -222,6 +233,8 @@ func (h *PDFHandler) GetDownloadURL(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate download URL"})
 	}
+
+	log.Printf("PDFHandler.GetDownloadURL: User %s is downloading file %s from job %s", userID, filename, jobID)
 
 	return c.JSON(fiber.Map{
 		"url": url,
