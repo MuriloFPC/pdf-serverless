@@ -99,6 +99,7 @@ const Dashboard: React.FC = () => {
       case 'protect': return t('dashboard_page.types.protect');
       case 'unprotect': return t('dashboard_page.types.unprotect');
       case 'remove_password': return t('dashboard_page.types.remove_password');
+      case 'optimize': return t('dashboard_page.types.optimize');
       default: return type;
     }
   };

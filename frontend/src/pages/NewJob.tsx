@@ -11,13 +11,14 @@ import {
   Unlock, 
   Scissors, 
   Combine,
-  AlertCircle
+  AlertCircle,
+  Zap
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 
-type ProcessType = 'merge' | 'split' | 'protect' | 'unprotect';
+type ProcessType = 'merge' | 'split' | 'protect' | 'unprotect' | 'optimize';
 
 const NewJob: React.FC = () => {
   const { t } = useTranslation();
@@ -99,6 +100,7 @@ const NewJob: React.FC = () => {
     { id: 'split', label: t('new_job_page.tools.split.label'), icon: Scissors, desc: t('new_job_page.tools.split.desc') },
     { id: 'protect', label: t('new_job_page.tools.protect.label'), icon: Lock, desc: t('new_job_page.tools.protect.desc') },
     { id: 'unprotect', label: t('new_job_page.tools.unprotect.label'), icon: Unlock, desc: t('new_job_page.tools.unprotect.desc') },
+    { id: 'optimize', label: t('new_job_page.tools.optimize.label'), icon: Zap, desc: t('new_job_page.tools.optimize.desc') },
   ];
 
   return (
@@ -108,7 +110,7 @@ const NewJob: React.FC = () => {
         <p className="text-dark-400 mt-2">{t('new_job_page.subtitle')}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         {types.map((t) => (
           <button
             key={t.id}

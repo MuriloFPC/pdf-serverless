@@ -41,7 +41,7 @@
       },
       "governance": {
         "title": "Data Governance",
-        "desc": "Full compliance with LGPD and GDPR. Detailed logs of who processed what, but without file content in the database."
+        "desc": "Full transparency and auditable processing. Detailed logs of who processed what, but without file content in the database."
       }
     },
     "workflow": {
@@ -64,7 +64,8 @@
       "merge": "Merge PDFs",
       "split": "Split PDFs",
       "protect": "Encrypt/Protect",
-      "unprotect": "Remove Protection"
+      "unprotect": "Remove Password",
+      "optimize": "Optimize/Compress"
     },
     "comparison": {
       "title": "Choose how you want to run",
@@ -188,8 +189,9 @@
       "merge": "Merge",
       "split": "Split",
       "protect": "Protect",
-      "unprotect": "Unprotect",
-      "remove_password": "Remove Password"
+      "unprotect": "Remove Password",
+      "remove_password": "Remove Password",
+      "optimize": "Optimize"
     },
     "download": "Download",
     "download_all": "Download All (ZIP)",
@@ -222,8 +224,12 @@
         "desc": "Add password to PDF"
       },
       "unprotect": {
-        "label": "Unprotect",
+        "label": "Remove Password",
         "desc": "Remove password from PDF"
+      },
+      "optimize": {
+        "label": "Optimize",
+        "desc": "Compress and optimize PDF size"
       }
     }
   }

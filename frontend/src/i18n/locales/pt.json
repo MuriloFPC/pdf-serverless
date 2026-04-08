@@ -41,7 +41,7 @@
       },
       "governance": {
         "title": "Governança de Dados",
-        "desc": "Conformidade total com LGPD e GDPR. Logs detalhados de quem processou o que, mas sem o conteúdo dos arquivos no banco de dados."
+        "desc": "Transparência total e processamento auditável. Logs detalhados de quem processou o que, mas sem o conteúdo dos arquivos no banco de dados."
       }
     },
     "workflow": {
@@ -64,7 +64,8 @@
       "merge": "Mesclar PDFs",
       "split": "Dividir PDFs",
       "protect": "Criptografar/Proteger",
-      "unprotect": "Remover Proteção"
+      "unprotect": "Remover Senha",
+      "optimize": "Otimizar/Comprimir"
     },
     "comparison": {
       "title": "Escolha como quer rodar",
@@ -189,8 +190,9 @@
       "merge": "Mesclar",
       "split": "Dividir",
       "protect": "Proteger",
-      "unprotect": "Desproteger",
-      "remove_password": "Remover Senha"
+      "unprotect": "Remover Senha",
+      "remove_password": "Remover Senha",
+      "optimize": "Otimizar"
     },
     "download": "Baixar",
     "download_all": "Baixar Tudo (ZIP)",
@@ -223,8 +225,12 @@
         "desc": "Adicionar senha ao PDF"
       },
       "unprotect": {
-        "label": "Desproteger",
+        "label": "Remover Senha",
         "desc": "Remover senha do PDF"
+      },
+      "optimize": {
+        "label": "Otimizar",
+        "desc": "Comprimir e otimizar o tamanho do PDF"
       }
     }
   }

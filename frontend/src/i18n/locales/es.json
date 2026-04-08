@@ -41,7 +41,7 @@
       },
       "governance": {
         "title": "Gobernanza de Datos",
-        "desc": "Cumplimiento total con LGPD y GDPR. Registros detallados de quién procesó qué, pero sin el contenido de los archivos en la base de datos."
+        "desc": "Transparencia total y procesamiento auditable. Registros detallados de quién procesó qué, mas sin el contenido de los archivos en la base de datos."
       }
     },
     "workflow": {
@@ -64,7 +64,8 @@
       "merge": "Combinar PDFs",
       "split": "Dividir PDFs",
       "protect": "Cifrar/Proteger",
-      "unprotect": "Quitar Protección"
+      "unprotect": "Quitar Contraseña",
+      "optimize": "Optimizar/Comprimir"
     },
     "comparison": {
       "title": "Elija cómo quiere ejecutarlo",
@@ -189,8 +190,9 @@
       "merge": "Combinar",
       "split": "Dividir",
       "protect": "Proteger",
-      "unprotect": "Desproteger",
-      "remove_password": "Quitar Contraseña"
+      "unprotect": "Quitar Contraseña",
+      "remove_password": "Quitar Contraseña",
+      "optimize": "Optimizar"
     },
     "download": "Descargar",
     "download_all": "Descargar Todo (ZIP)",
@@ -223,8 +225,12 @@
         "desc": "Añadir contraseña al PDF"
       },
       "unprotect": {
-        "label": "Desproteger",
+        "label": "Quitar Contraseña",
         "desc": "Quitar contraseña del PDF"
+      },
+      "optimize": {
+        "label": "Optimizar",
+        "desc": "Comprimir y optimizar el tamaño del PDF"
       }
     }
   }
