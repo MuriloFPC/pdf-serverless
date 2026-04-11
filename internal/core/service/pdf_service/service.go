@@ -3,6 +3,7 @@ package pdf_service
 import (
 	"context"
 	"errors"
+	"log"
 	"pdf_serverless/internal/core/domain/entities"
 	"pdf_serverless/internal/core/domain/interfaces"
 	"pdf_serverless/internal/core/service/pdf_service/strategy"
@@ -118,14 +119,22 @@ func (s *PDFService) DeleteJobFiles(ctx context.Context, userID string, jobID st
 	// Delete input files from storage
 	for _, f := range job.InputFiles {
 		if f.Path != "" {
-			_ = s.storage.Delete(ctx, f.Path)
+			if err := s.storage.Delete(ctx, f.Path); err != nil {
+				log.Printf("PDFService.DeleteJobFiles: Error deleting input file %s: %v", f.Path, err)
+			} else {
+				log.Printf("PDFService.DeleteJobFiles: Deleted input file %s", f.Path)
+			}
 		}
 	}
 
 	// Delete output files from storage
 	for _, f := range job.OutputFiles {
 		if f.Path != "" {
-			_ = s.storage.Delete(ctx, f.Path)
+			if err := s.storage.Delete(ctx, f.Path); err != nil {
+				log.Printf("PDFService.DeleteJobFiles: Error deleting output file %s: %v", f.Path, err)
+			} else {
+				log.Printf("PDFService.DeleteJobFiles: Deleted output file %s", f.Path)
+			}
 		}
 	}
 

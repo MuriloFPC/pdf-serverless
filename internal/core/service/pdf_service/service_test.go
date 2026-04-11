@@ -1,66 +1,74 @@
-package pdf_service_test
+package pdf_service
 
 import (
+	"context"
 	"pdf_serverless/internal/core/domain/entities"
-	"pdf_serverless/internal/core/service/pdf_service"
-	"pdf_serverless/internal/core/service/pdf_service/strategy"
 	"pdf_serverless/internal/infra/database"
-	"pdf_serverless/internal/infra/queue"
 	"pdf_serverless/internal/infra/storage"
 	"testing"
-	"time"
-
-	"github.com/google/uuid"
 )
 
-func createTestPDF() []byte {
-	return []byte("%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF")
-}
-
-func TestPDFService_ProcessJob(t *testing.T) {
-	ctx := t.Context()
+func TestDeleteJobFiles(t *testing.T) {
+	ctx := context.Background()
 	jobRepo := database.NewJobMemoryRepository()
 	store := storage.NewMemoryStorage()
-	q := queue.NewMemoryQueue()
+	service := NewPDFService(jobRepo, store, nil, nil)
 
-	strategies := []strategy.ProcessingStrategy{
-		strategy.NewMergeStrategy(store),
-	}
-	service := pdf_service.NewPDFService(jobRepo, store, q, strategies)
+	userID := "user123"
+	jobID := "job456"
 
+	// Create a mock job
 	job := &entities.PDFJob{
-		JobID:       uuid.New().String(),
-		UserID:      "test-user",
-		ProcessType: entities.TypeMerge,
-		Status:      entities.StatusPending,
-		CreatedAt:   time.Now(),
+		JobID:  jobID,
+		UserID: userID,
 		InputFiles: []entities.FileMetadata{
-			{Path: "test1.pdf", Filename: "test1.pdf", UploadedAt: time.Now()},
-			{Path: "test2.pdf", Filename: "test2.pdf", UploadedAt: time.Now()},
+			{Path: "input/test1.pdf", Filename: "test1.pdf"},
 		},
+		OutputFiles: []entities.FileMetadata{
+			{Path: "output/result.pdf", Filename: "result.pdf"},
+		},
+		Status: entities.StatusCompleted,
 	}
-
-	// Create dummy PDF files in storage
-	dummyPDF := []byte("%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF")
-	store.Upload(ctx, "test1.pdf", dummyPDF)
-	store.Upload(ctx, "test2.pdf", dummyPDF)
 
 	err := jobRepo.Create(ctx, job)
 	if err != nil {
 		t.Fatalf("Failed to create job: %v", err)
 	}
 
-	err = service.ProcessJob(ctx, job.JobID)
+	// Upload mock files to memory storage
+	_, _ = store.Upload(ctx, "input/test1.pdf", []byte("pdf data"))
+	_, _ = store.Upload(ctx, "output/result.pdf", []byte("result data"))
+
+	// Verify files exist before deletion
+	_, err = store.Download(ctx, "input/test1.pdf")
 	if err != nil {
-		t.Fatalf("Failed to process job: %v", err)
+		t.Errorf("Input file should exist before deletion")
+	}
+	_, err = store.Download(ctx, "output/result.pdf")
+	if err != nil {
+		t.Errorf("Output file should exist before deletion")
 	}
 
-	updatedJob, err := jobRepo.GetByID(ctx, job.JobID)
+	// Delete job files
+	err = service.DeleteJobFiles(ctx, userID, jobID)
 	if err != nil {
-		t.Fatalf("Failed to get job: %v", err)
+		t.Fatalf("DeleteJobFiles failed: %v", err)
 	}
 
-	if updatedJob.Status != entities.StatusCompleted {
-		t.Errorf("Expected status %s, got %s", entities.StatusCompleted, updatedJob.Status)
+	// Verify job status is updated
+	updatedJob, _ := jobRepo.GetByID(ctx, jobID)
+	if updatedJob.Status != entities.StatusManuallyExcluded {
+		t.Errorf("Expected status %s, got %s", entities.StatusManuallyExcluded, updatedJob.Status)
+	}
+
+	// Verify files are deleted from storage
+	_, err = store.Download(ctx, "input/test1.pdf")
+	if err == nil {
+		t.Errorf("Input file should be deleted from storage")
+	}
+
+	_, err = store.Download(ctx, "output/result.pdf")
+	if err == nil {
+		t.Errorf("Output file should be deleted from storage")
 	}
 }

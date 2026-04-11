@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"sync"
 )
 
@@ -28,7 +29,7 @@ func (s *MemoryStorage) Download(ctx context.Context, key string) ([]byte, error
 	defer s.mu.RUnlock()
 	data, ok := s.data[key]
 	if !ok {
-		return nil, nil
+		return nil, fmt.Errorf("file not found")
 	}
 	return data, nil
 }
