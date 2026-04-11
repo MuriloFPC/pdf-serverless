@@ -31,6 +31,19 @@ type ProcessRequest struct {
 	Metadata map[string]any       `json:"metadata"`
 }
 
+// Process godoc
+// @Summary      Create a new PDF processing job
+// @Description  Initialize a PDF job (merge, split, protect, etc.)
+// @Tags         pdf
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header    string          true  "Bearer <token>"
+// @Param        request        body      ProcessRequest  true  "Process request"
+// @Success      201            {object}  entities.PDFJob
+// @Failure      400            {object}  map[string]string
+// @Failure      401            {object}  map[string]string
+// @Failure      500            {object}  map[string]string
+// @Router       /pdf/process [post]
 func (h *PDFHandler) Process(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(string)
 
@@ -77,6 +90,21 @@ func (h *PDFHandler) Process(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(job)
 }
 
+// GetPresignedURL godoc
+// @Summary      Get a presigned S3 upload URL
+// @Description  Generates a URL for direct upload to S3 for a specific job
+// @Tags         pdf
+// @Produce      json
+// @Param        Authorization  header    string  true  "Bearer <token>"
+// @Param        id             path      string  true  "Job ID"
+// @Param        filename       query     string  true  "Original filename"
+// @Success      200            {object}  map[string]string
+// @Failure      400            {object}  map[string]string
+// @Failure      401            {object}  map[string]string
+// @Failure      403            {object}  map[string]string
+// @Failure      404            {object}  map[string]string
+// @Failure      500            {object}  map[string]string
+// @Router       /pdf/presigned-url/{id} [get]
 func (h *PDFHandler) GetPresignedURL(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(string)
 	jobID := c.Params("id")
@@ -117,6 +145,20 @@ func (h *PDFHandler) GetPresignedURL(c *fiber.Ctx) error {
 	})
 }
 
+// CompleteUpload godoc
+// @Summary      Mark job uploads as complete
+// @Description  Notifies the system that all files for a job have been uploaded
+// @Tags         pdf
+// @Produce      json
+// @Param        Authorization  header    string  true  "Bearer <token>"
+// @Param        id             path      string  true  "Job ID"
+// @Success      200            {object}  map[string]string
+// @Failure      400            {object}  map[string]string
+// @Failure      401            {object}  map[string]string
+// @Failure      403            {object}  map[string]string
+// @Failure      404            {object}  map[string]string
+// @Failure      500            {object}  map[string]string
+// @Router       /pdf/complete-upload/{id} [post]
 func (h *PDFHandler) CompleteUpload(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(string)
 	jobID := c.Params("id")
@@ -141,6 +183,18 @@ func (h *PDFHandler) CompleteUpload(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "pending"})
 }
 
+// GetStatus godoc
+// @Summary      Get PDF job status
+// @Description  Returns the current status of a PDF processing job
+// @Tags         pdf
+// @Produce      json
+// @Param        Authorization  header    string  true  "Bearer <token>"
+// @Param        id             path      string  true  "Job ID"
+// @Success      200            {object}  entities.PDFJob
+// @Failure      401            {object}  map[string]string
+// @Failure      403            {object}  map[string]string
+// @Failure      404            {object}  map[string]string
+// @Router       /pdf/status/{id} [get]
 func (h *PDFHandler) GetStatus(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(string)
 	jobID := c.Params("id")
@@ -164,6 +218,16 @@ func (h *PDFHandler) GetStatus(c *fiber.Ctx) error {
 	return c.JSON(job)
 }
 
+// List godoc
+// @Summary      List user PDF jobs
+// @Description  Returns all PDF processing jobs for the authenticated user
+// @Tags         pdf
+// @Produce      json
+// @Param        Authorization  header    string  true  "Bearer <token>"
+// @Success      200            {array}   entities.PDFJob
+// @Failure      401            {object}  map[string]string
+// @Failure      500            {object}  map[string]string
+// @Router       /pdf/list [get]
 func (h *PDFHandler) List(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(string)
 
@@ -183,6 +247,21 @@ func (h *PDFHandler) List(c *fiber.Ctx) error {
 	return c.JSON(jobs)
 }
 
+// GetDownloadURL godoc
+// @Summary      Get a presigned S3 download URL
+// @Description  Generates a URL for downloading a processed PDF file
+// @Tags         pdf
+// @Produce      json
+// @Param        Authorization  header    string  true  "Bearer <token>"
+// @Param        id             path      string  true  "Job ID"
+// @Param        filename       query     string  true  "File path from job output"
+// @Success      200            {object}  map[string]string
+// @Failure      400            {object}  map[string]string
+// @Failure      401            {object}  map[string]string
+// @Failure      403            {object}  map[string]string
+// @Failure      404            {object}  map[string]string
+// @Failure      500            {object}  map[string]string
+// @Router       /pdf/download/{id} [get]
 func (h *PDFHandler) GetDownloadURL(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(string)
 	jobID := c.Params("id")
@@ -241,6 +320,16 @@ func (h *PDFHandler) GetDownloadURL(c *fiber.Ctx) error {
 	})
 }
 
+// Delete godoc
+// @Summary      Delete a PDF job
+// @Description  Removes a PDF job and its associated files
+// @Tags         pdf
+// @Param        Authorization  header    string  true  "Bearer <token>"
+// @Param        id             path      string  true  "Job ID"
+// @Success      204            "No Content"
+// @Failure      401            {object}  map[string]string
+// @Failure      500            {object}  map[string]string
+// @Router       /pdf/{id} [delete]
 func (h *PDFHandler) Delete(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(string)
 	jobID := c.Params("id")

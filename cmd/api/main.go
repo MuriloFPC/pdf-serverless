@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	_ "pdf_serverless/docs"
 	"pdf_serverless/internal/core/domain/entities"
 	"pdf_serverless/internal/core/domain/interfaces"
 	"pdf_serverless/internal/core/service/pdf_service"
@@ -24,8 +25,26 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
+// @title PDF Serverless API
+// @version 1.0
+// @description This is a serverless PDF processing API.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:3000
+// @BasePath /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	ctx := context.Background()
 	app := fiber.New()
@@ -116,6 +135,8 @@ func main() {
 	auth := app.Group("/auth")
 	auth.Post("/register", authHandler.Register)
 	auth.Post("/login", authHandler.Login)
+
+	app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
 	pdf := app.Group("/pdf", authHandler.JWTMiddleware())
 	pdf.Post("/process", pdfHandler.Process)
